@@ -133,6 +133,22 @@ while cap.isOpened():
     face_2d = []
     face_3d = []
 
+    right_eye_2d = []
+    right_eye_3d = []
+
+    left_eye_2d = []
+    left_eye_3d = []
+
+    # The camera matrix
+    focal_length = 1 * img_w
+    cam_matrix = np.array([ 
+        [focal_length,  0,              img_h / 2],
+        [0,             focal_length,   img_w / 2],
+        [0,             0,              1        ]
+    ])
+    # The distorsion parameters
+    dist_matrix = np.zeros((4, 1), dtype=np.float64)
+
     # 4.3 - Get the landmark coordinates
 
     if results.multi_face_landmarks:
@@ -228,7 +244,7 @@ while cap.isOpened():
 
 
 
-                "R EYE PUPIL"
+                "RIGHT EYE PUPIL"
                 if idx == 468:
                     point_REIC = (lm.x * img_w, lm.y * img_h)
                     # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=(255, 255, 0), thickness=-1)                    
@@ -251,26 +267,26 @@ while cap.isOpened():
 
 
 
-                "L EYE PUPIL"
+                "LEFT EYE PUPIL"
                 if idx == 473:
                     point_LEIC = (lm.x * img_w, lm.y * img_h)
-                    #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=(0, 255, 255), thickness=-1)
+                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=(0, 255, 255), thickness=-1)
 
                 if idx == 474:
                     point_474 = (lm.x * img_w, lm.y * img_h)
-                    #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=blue, thickness=-1)
+                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=blue, thickness=-1)
 
                 if idx == 475:
                     point_475 = (lm.x * img_w, lm.y * img_h)
-                    #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=blue, thickness=-1)
+                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=blue, thickness=-1)
 
                 if idx == 476:
                     point_476 = (lm.x * img_w, lm.y * img_h)
-                    #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=blue, thickness=-1)
+                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=blue, thickness=-1)
 
                 if idx == 477:
                     point_477 = (lm.x * img_w, lm.y * img_h)
-                    #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=blue, thickness=-1)
+                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=blue, thickness=-1)
 
 
                 "FACE"
@@ -279,7 +295,6 @@ while cap.isOpened():
                         nose_2d = (lm.x * img_w, lm.y * img_h)
                         nose_3d = (lm.x * img_w, lm.y * img_h, lm.z * 3000)
                         cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=4, color=blue, thickness=-1)
-
 
                     x, y = int(lm.x * img_w), int(lm.y * img_h)
 
@@ -290,30 +305,27 @@ while cap.isOpened():
 
 
 
-                "LEFT_IRIS"
-                #LEFT_IRIS = [473, 474, 475, 476, 477]
+                "LEFT IRIS"
                 if idx == 473 or idx == 362 or idx == 374 or idx == 263 or idx == 386: # iris points
-                #if idx == 473 or idx == 474 or idx == 475 or idx == 476 or idx == 477: # eye border
-
                     if idx == 473:
                         left_pupil_2d = (lm.x * img_w, lm.y * img_h)
                         left_pupil_3d = (lm.x * img_w, lm.y * img_h, lm.z * 3000)
                         cv2.circle(image, (int(left_pupil_2d[0]), int(left_pupil_2d[1])), radius=2, color=green, thickness=-1)
 
-
                     x, y = int(lm.x * img_w), int(lm.y * img_h)
+                    left_eye_2d.append([x, y])
+                    left_eye_3d.append([x, y, lm.z])
 
 
-                "RIGHT_IRIS"
-                #RIGHT_IRIS = [468, 469, 470, 471, 472]
+                "RIGHT IRIS"
                 if idx == 468 or idx == 33 or idx == 145 or idx == 133 or idx == 159: # iris points
-                # if idx == 468 or idx == 469 or idx == 470 or idx == 471 or idx == 472: # eye border
-
                     if idx == 468:
                         right_pupil_2d = (lm.x * img_w, lm.y * img_h)
                         right_pupil_3d = (lm.x * img_w, lm.y * img_h, lm.z * 3000)
 
                     x, y = int(lm.x * img_w), int(lm.y * img_h)
+                    right_eye_2d.append([x, y])
+                    right_eye_3d.append([x, y, lm.z])
 
 
             # 4.4. - Draw the positions on the frame
@@ -324,40 +336,30 @@ while cap.isOpened():
 
             horizontal_threshold = 0.1
             # cv2.circle(image, (int(l_eye_center[0]), int(l_eye_center[1])), radius=int(horizontal_threshold * l_eye_width), color=blue, thickness=-1) #center of eye and its radius 
-
             # cv2.circle(image, (int(point_LEIC[0]), int(point_LEIC[1])), radius=3, color=green, thickness=-1) # Center of iris
-
             # cv2.circle(image, (int(l_eye_center[0]), int(l_eye_center[1])), radius=2, color=gray, thickness=-1) # Center of eye
-
             # print("Left eye: x = " + str(np.round(point_LEIC[0],0)) + " , y = " + str(np.round(point_LEIC[1],0)))
-
             cv2.putText(image, "Left eye: x = " + str(np.round(point_LEIC[0],0)) + ", y = " + str(np.round(point_LEIC[1],0)), (200, 50), cv2.FONT_HERSHEY_SIMPLEX, font_size, green, 2) 
 
 
 
             r_eye_width = point_REL[0] - point_RER[0]
-
             r_eye_height = point_REB[1] - point_RET[1]
-
             r_eye_center = [(point_REL[0] + point_RER[0])/2 ,(point_REB[1] + point_RET[1])/2]
 
             #cv2.circle(image, (int(r_eye_center[0]), int(r_eye_center[1])), radius=int(horizontal_threshold * r_eye_width), color=blue, thickness=-1) #center of eye and its radius 
-
             # cv2.circle(image, (int(point_REIC[0]), int(point_REIC[1])), radius=3, color=red, thickness=-1) # Center of iris
-
             # cv2.circle(image, (int(r_eye_center[0]), int(r_eye_center[1])), radius=2, color=gray, thickness=-1) # Center of eye
-
             #print("right eye: x = " + str(np.round(point_REIC[0],0)) + " , y = " + str(np.round(point_REIC[1],0)))
+            cv2.putText(image, "Right eye: x = " + str(np.round(point_REIC[0],0)) + ", y = " + str(np.round(point_REIC[1],0)), (200, 100), cv2.FONT_HERSHEY_SIMPLEX, font_size, red, 2)
 
-            cv2.putText(image, "Right eye: x = " + str(np.round(point_REIC[0],0)) + ", y = " + str(np.round(point_REIC[1],0)), (200, 100), cv2.FONT_HERSHEY_SIMPLEX, font_size, red, 2) 
-
-            # speed reduction (comment out for full speed)
 
 
             "EAR"
             ear_R = (abs(point_RP2[1] - point_RP6[1]) + abs(point_RP3[1] - point_RP5[1])) / (2 * abs(point_REL[0] - point_RER[0]))
             ear_L = (abs(point_LP2[1] - point_LP6[1]) + abs(point_LP3[1] - point_LP5[1])) / (2 * abs(point_LEL[0] - point_LER[0]))
             cv2.putText(image, "EAR: R = " + str(np.round(ear_R, 3)) + ", L = " + str(np.round(ear_L, 3)), (200, 150), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
+
 
 
             "PERCLOS"
@@ -373,7 +375,7 @@ while cap.isOpened():
             else:
                 time_open_L = 0
 
-            if time_open_R > 2 or time_open_L > 2:
+            if time_open_R > 2 or time_open_L > 10:
                 drowsy = 1
             
             if drowsy > 0:
@@ -384,8 +386,58 @@ while cap.isOpened():
         
 
 
+            "rot matrix"
+            face_2d = np.array(face_2d, dtype=np.float64)
+            face_3d = np.array(face_3d, dtype=np.float64)
+            left_eye_2d = np.array(left_eye_2d, dtype=np.float64)
+            left_eye_3d = np.array(left_eye_3d, dtype=np.float64)
+            right_eye_2d = np.array(right_eye_2d, dtype=np.float64)
+            right_eye_3d = np.array(right_eye_3d, dtype=np.float64)
+
+            # Solve PnP
+            success, rot_vec, trans_vec = cv2.solvePnP(face_3d, face_2d, cam_matrix, dist_matrix)
+            success_left_eye, rot_vec_left_eye, trans_vec_left_eye = cv2.solvePnP(left_eye_3d, left_eye_2d, cam_matrix, dist_matrix)
+            success_right_eye, rot_vec_right_eye, trans_vec_right_eye = cv2.solvePnP(right_eye_3d, right_eye_2d, cam_matrix, dist_matrix)
+
+            # Get rotational matrix
+            rmat, jac = cv2.Rodrigues(rot_vec)
+            rmat_left_eye, jac_left_eye = cv2.Rodrigues(rot_vec_left_eye)
+            rmat_right_eye, jac_right_eye = cv2.Rodrigues(rot_vec_right_eye)
+
+            # Get angles
+            angles, mtxR, mtxQ, Qx, Qy, Qz = cv2.RQDecomp3x3(rmat)
+            angles_left_eye, mtxR_left_eye, mtxQ_left_eye, Qx_left_eye, Qy_left_eye, Qz_left_eye = cv2.RQDecomp3x3(rmat_left_eye)
+            angles_right_eye, mtxR_right_eye, mtxQ_right_eye, Qx_right_eye, Qy_right_eye, Qz_right_eye = cv2.RQDecomp3x3(rmat_right_eye)
 
 
+            pitch = angles[0] * 1800
+            yaw = -angles[1] * 1800
+            roll = 180 + (np.arctan2(point_RER[1] - point_LEL[1], point_RER[0] - point_LEL[0]) * 180 / np.pi)
+            if roll > 180:
+                roll = roll - 360
+            pitch_left_eye = angles_left_eye[0] * 1800
+            yaw_left_eye = angles_left_eye[1] * 1800
+            pitch_right_eye = angles_right_eye[0] * 1800
+            yaq_right_eye = angles_right_eye[1] * 1800
+
+
+            # Display directions
+            lenght_line = 3
+
+            nose_3d_projection, jacobian = cv2.projectPoints(nose_3d, rot_vec, trans_vec, cam_matrix, dist_matrix)
+            p1 = (int(nose_2d[0]), int(nose_2d[1]))
+            p2 = (int(nose_2d[0] - yaw * lenght_line), int(nose_2d[1] - pitch * lenght_line))
+            cv2.line(image, p1, p2, blue, 3)
+
+            left_eye_3d_projection, jacobian = cv2.projectPoints(left_pupil_3d, rot_vec_left_eye, trans_vec_left_eye, cam_matrix, dist_matrix)
+            p1 = (int(left_pupil_2d[0]), int(left_pupil_2d[1]))
+            p2 = (int(left_pupil_2d[0] - yaw * lenght_line), int(left_pupil_2d[1] - pitch * lenght_line))
+            cv2.line(image, p1, p2, blue, 3)
+
+            right_eye_3d_projection, jacobian = cv2.projectPoints(right_pupil_3d, rot_vec_left_eye, trans_vec_left_eye, cam_matrix, dist_matrix)
+            p1 = (int(right_pupil_2d[0]), int(right_pupil_2d[1]))
+            p2 = (int(right_pupil_2d[0] - yaw * lenght_line), int(right_pupil_2d[1] - pitch * lenght_line))
+            cv2.line(image, p1, p2, blue, 3)
 
             time.sleep(1/25) # [s]
 
