@@ -38,6 +38,7 @@ import os
 blue =  (255, 0, 0)
 green = (0, 255, 0)
 red =   (0, 0, 255)
+gray =  (128, 128, 128)
 font_size = 0.8
 
 
@@ -129,6 +130,8 @@ while cap.isOpened():
     point_REIC = [] # Right Eye Iris Center
     point_LEIC = [] # Left Eye Iris Center
 
+    face_2d = []
+    face_3d = []
 
     # 4.3 - Get the landmark coordinates
 
@@ -171,19 +174,19 @@ while cap.isOpened():
                 "R EYE CONTOUR P2 P3 P5 P6"
                 if idx == 160:
                     point_RP2 = (lm.x * img_w, lm.y * img_h)
-                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
+                    # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
                 if idx == 158:
                     point_RP3 = (lm.x * img_w, lm.y * img_h)
-                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
+                    # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
                 if idx == 153:
                     point_RP5 = (lm.x * img_w, lm.y * img_h)
-                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
+                    # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
                 if idx == 144:
                     point_RP6 = (lm.x * img_w, lm.y * img_h)
-                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
+                    # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
 
 
@@ -209,26 +212,26 @@ while cap.isOpened():
                 "L EYE CONTOUR P2 P3 P5 P6"
                 if idx == 385:
                     point_LP2 = (lm.x * img_w, lm.y * img_h)
-                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
+                    # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
                 if idx == 387:
                     point_LP3 = (lm.x * img_w, lm.y * img_h)
-                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
+                    # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
                 if idx == 373:
                     point_LP5 = (lm.x * img_w, lm.y * img_h)
-                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
+                    # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
                 if idx == 380:
                     point_LP6 = (lm.x * img_w, lm.y * img_h)
-                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
+                    # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
 
 
                 "R EYE PUPIL"
                 if idx == 468:
                     point_REIC = (lm.x * img_w, lm.y * img_h)
-                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=6, color=(255, 255, 0), thickness=-1)                    
+                    # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=(255, 255, 0), thickness=-1)                    
 
                 if idx == 469:
                     point_469 = (lm.x * img_w, lm.y * img_h)
@@ -270,19 +273,24 @@ while cap.isOpened():
                     #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=blue, thickness=-1)
 
 
-
-
-
-                # TODO
+                "FACE"
                 if idx == 33 or idx == 263 or idx == 1 or idx == 61 or idx == 291 or idx == 199:
                     if idx == 1:
                         nose_2d = (lm.x * img_w, lm.y * img_h)
                         nose_3d = (lm.x * img_w, lm.y * img_h, lm.z * 3000)
+                        cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=4, color=blue, thickness=-1)
+
 
                     x, y = int(lm.x * img_w), int(lm.y * img_h)
 
-                # TODO
+                    # Get the 2D Coordinates
+                    face_2d.append([x, y])
+                    # Get the 3D Coordinates
+                    face_3d.append([x, y, lm.z])
 
+
+
+                "LEFT_IRIS"
                 #LEFT_IRIS = [473, 474, 475, 476, 477]
                 if idx == 473 or idx == 362 or idx == 374 or idx == 263 or idx == 386: # iris points
                 #if idx == 473 or idx == 474 or idx == 475 or idx == 476 or idx == 477: # eye border
@@ -290,11 +298,13 @@ while cap.isOpened():
                     if idx == 473:
                         left_pupil_2d = (lm.x * img_w, lm.y * img_h)
                         left_pupil_3d = (lm.x * img_w, lm.y * img_h, lm.z * 3000)
+                        cv2.circle(image, (int(left_pupil_2d[0]), int(left_pupil_2d[1])), radius=2, color=green, thickness=-1)
+
 
                     x, y = int(lm.x * img_w), int(lm.y * img_h)
 
 
-                # TODO
+                "RIGHT_IRIS"
                 #RIGHT_IRIS = [468, 469, 470, 471, 472]
                 if idx == 468 or idx == 33 or idx == 145 or idx == 133 or idx == 159: # iris points
                 # if idx == 468 or idx == 469 or idx == 470 or idx == 471 or idx == 472: # eye border
@@ -309,17 +319,15 @@ while cap.isOpened():
             # 4.4. - Draw the positions on the frame
 
             l_eye_width = point_LEL[0] - point_LER[0]
-
             l_eye_height = point_LEB[1] - point_LET[1]
-
             l_eye_center = [(point_LEL[0] + point_LER[0])/2 ,(point_LEB[1] + point_LET[1])/2]
 
             horizontal_threshold = 0.1
             # cv2.circle(image, (int(l_eye_center[0]), int(l_eye_center[1])), radius=int(horizontal_threshold * l_eye_width), color=blue, thickness=-1) #center of eye and its radius 
 
-            cv2.circle(image, (int(point_LEIC[0]), int(point_LEIC[1])), radius=3, color=green, thickness=-1) # Center of iris
+            # cv2.circle(image, (int(point_LEIC[0]), int(point_LEIC[1])), radius=3, color=green, thickness=-1) # Center of iris
 
-            cv2.circle(image, (int(l_eye_center[0]), int(l_eye_center[1])), radius=2, color=(128, 128, 128), thickness=-1) # Center of eye
+            # cv2.circle(image, (int(l_eye_center[0]), int(l_eye_center[1])), radius=2, color=gray, thickness=-1) # Center of eye
 
             # print("Left eye: x = " + str(np.round(point_LEIC[0],0)) + " , y = " + str(np.round(point_LEIC[1],0)))
 
@@ -335,9 +343,9 @@ while cap.isOpened():
 
             #cv2.circle(image, (int(r_eye_center[0]), int(r_eye_center[1])), radius=int(horizontal_threshold * r_eye_width), color=blue, thickness=-1) #center of eye and its radius 
 
-            cv2.circle(image, (int(point_REIC[0]), int(point_REIC[1])), radius=3, color=red, thickness=-1) # Center of iris
+            # cv2.circle(image, (int(point_REIC[0]), int(point_REIC[1])), radius=3, color=red, thickness=-1) # Center of iris
 
-            cv2.circle(image, (int(r_eye_center[0]), int(r_eye_center[1])), radius=2, color=(128, 128, 128), thickness=-1) # Center of eye
+            # cv2.circle(image, (int(r_eye_center[0]), int(r_eye_center[1])), radius=2, color=gray, thickness=-1) # Center of eye
 
             #print("right eye: x = " + str(np.round(point_REIC[0],0)) + " , y = " + str(np.round(point_REIC[1],0)))
 
@@ -347,21 +355,20 @@ while cap.isOpened():
 
 
             "EAR"
-            R_EAR = (abs(point_RP2[1] - point_RP6[1]) + abs(point_RP3[1] - point_RP5[1])) / (2 * abs(point_REL[0] - point_RER[0]))
-            L_EAR = (abs(point_LP2[1] - point_LP6[1]) + abs(point_LP3[1] - point_LP5[1])) / (2 * abs(point_LEL[0] - point_LER[0]))
-
-            cv2.putText(image, "EAR: R = " + str(np.round(R_EAR, 3)) + ", L = " + str(np.round(L_EAR, 3)), (200, 150), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
+            ear_R = (abs(point_RP2[1] - point_RP6[1]) + abs(point_RP3[1] - point_RP5[1])) / (2 * abs(point_REL[0] - point_RER[0]))
+            ear_L = (abs(point_LP2[1] - point_LP6[1]) + abs(point_LP3[1] - point_LP5[1])) / (2 * abs(point_LEL[0] - point_LER[0]))
+            cv2.putText(image, "EAR: R = " + str(np.round(ear_R, 3)) + ", L = " + str(np.round(ear_L, 3)), (200, 150), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
 
 
             "PERCLOS"
             EAR_max = 0.3
 
-            if R_EAR > 0.8 * EAR_max:
+            if ear_R > 0.8 * EAR_max:
                 time_open_R += 1/15
             else:
                 time_open_R = 0
 
-            if L_EAR > 0.8 * EAR_max:
+            if ear_L > 0.8 * EAR_max:
                 time_open_L += 1/15
             else:
                 time_open_L = 0
