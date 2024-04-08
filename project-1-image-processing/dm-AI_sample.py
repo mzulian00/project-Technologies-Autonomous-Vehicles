@@ -39,7 +39,7 @@ blue =  (255, 0, 0)
 green = (0, 255, 0)
 red =   (0, 0, 255)
 gray =  (128, 128, 128)
-font_size = 0.8
+font_size = 0.6
 
 
 # 2 - Set the desired setting
@@ -85,8 +85,8 @@ cap = cv2.VideoCapture(0) # Local webcam (index start from 0)
 
 # 4 - Iterate (within an infinite loop)
 
-time_open_R = 0
-time_open_L = 0
+time_open_R = -1
+time_open_L = -1
 drowsy = -1
 
 time_notfocus = 0
@@ -273,7 +273,7 @@ while cap.isOpened():
                 "LEFT EYE PUPIL"
                 if idx == 473:
                     point_LEIC = (lm.x * img_w, lm.y * img_h)
-                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=(0, 255, 255), thickness=-1)
+                    # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=(0, 255, 255), thickness=-1)
 
                 if idx == 474:
                     point_474 = (lm.x * img_w, lm.y * img_h)
@@ -297,7 +297,7 @@ while cap.isOpened():
                     if idx == 1:
                         nose_2d = (lm.x * img_w, lm.y * img_h)
                         nose_3d = (lm.x * img_w, lm.y * img_h, lm.z * 3000)
-                        cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=4, color=blue, thickness=-1)
+                        # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=4, color=blue, thickness=-1)
 
                     x, y = int(lm.x * img_w), int(lm.y * img_h)
 
@@ -342,7 +342,7 @@ while cap.isOpened():
             cv2.circle(image, (int(point_LEIC[0]), int(point_LEIC[1])), radius=3, color=green, thickness=-1) # Center of iris
             cv2.circle(image, (int(l_eye_center[0]), int(l_eye_center[1])), radius=2, color=gray, thickness=-1) # Center of eye
             # print("Left eye: x = " + str(np.round(point_LEIC[0],0)) + " , y = " + str(np.round(point_LEIC[1],0)))
-            cv2.putText(image, "Left eye: x = " + str(np.round(point_LEIC[0],0)) + ", y = " + str(np.round(point_LEIC[1],0)), (200, 50), cv2.FONT_HERSHEY_SIMPLEX, font_size, green, 2) 
+            cv2.putText(image, "LEFT EYE:  x = " + str(np.round(point_LEIC[0],0)) + ", y = " + str(np.round(point_LEIC[1],0)), (270, 50), cv2.FONT_HERSHEY_SIMPLEX, font_size, green, 2) 
 
 
 
@@ -354,38 +354,37 @@ while cap.isOpened():
             cv2.circle(image, (int(point_REIC[0]), int(point_REIC[1])), radius=3, color=red, thickness=-1) # Center of iris
             cv2.circle(image, (int(r_eye_center[0]), int(r_eye_center[1])), radius=2, color=gray, thickness=-1) # Center of eye
             #print("right eye: x = " + str(np.round(point_REIC[0],0)) + " , y = " + str(np.round(point_REIC[1],0)))
-            cv2.putText(image, "Right eye: x = " + str(np.round(point_REIC[0],0)) + ", y = " + str(np.round(point_REIC[1],0)), (200, 100), cv2.FONT_HERSHEY_SIMPLEX, font_size, red, 2)
+            cv2.putText(image, "RIGHT EYE: x = " + str(np.round(point_REIC[0],0)) + ", y = " + str(np.round(point_REIC[1],0)), (270, 80), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2)
 
 
 
             "EAR"
             ear_R = (abs(point_RP2[1] - point_RP6[1]) + abs(point_RP3[1] - point_RP5[1])) / (2 * abs(point_REL[0] - point_RER[0]))
             ear_L = (abs(point_LP2[1] - point_LP6[1]) + abs(point_LP3[1] - point_LP5[1])) / (2 * abs(point_LEL[0] - point_LER[0]))
-            cv2.putText(image, "EAR: R = " + str(np.round(ear_R, 3)) + ", L = " + str(np.round(ear_L, 3)), (200, 150), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
+            # cv2.putText(image, "EAR: R = " + str(np.round(ear_R, 3)) + ", L = " + str(np.round(ear_L, 3)), (200, 150), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
 
 
 
             "PERCLOS"
             EAR_max = 0.3
 
-            if ear_R > 0.8 * EAR_max:
-                time_open_R += 1/15
-            else:
-                time_open_R = 0
+            if ear_R < 0.8 * EAR_max:
+                time_open_R = time.time()
 
-            if ear_L > 0.8 * EAR_max:
-                time_open_L += 1/15
-            else:
-                time_open_L = 0
+            if ear_L < 0.8 * EAR_max:
+                time_open_L = time.time()
 
-            if time_open_R > 10 or time_open_L > 10:
+            if (time.time()-time_open_R > 5 or time.time()-time_open_L > 5):
                 drowsy = 1
             
             if drowsy > 0:
-                # cv2.putText(image, "DROWSY !!!", (250, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, red, 2) 
+                cv2.putText(image, "DROWSY !", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, font_size, red, 2) 
                 drowsy -= 1/15
+            else:
+                cv2.putText(image, "AWAKE", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
+
             # cv2.putText(image, str(np.round(EAR_max, 3))+" "+str(np.round(time_open_R, 5))+" "+str(np.round(drowsy, 5)), (200, 200), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
-            # cv2.putText(image, str(np.round(EAR_max, 3))+" "+str(np.round(time_open_L, 5))+" "+str(np.round(drowsy, 5)), (200, 250), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
+            # cv2.putText(image, str(np.round(EAR_max, 3))+" "+str(np.round(time_open_L, 5))+" "+str(np.round(drowsy, 5)), (270, 120), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
         
 
 
@@ -430,41 +429,56 @@ while cap.isOpened():
             nose_3d_projection, jacobian = cv2.projectPoints(nose_3d, rot_vec, trans_vec, cam_matrix, dist_matrix)
             p1 = (int(nose_2d[0]), int(nose_2d[1]))
             p2 = (int(nose_2d[0] - yaw * lenght_line), int(nose_2d[1] - pitch * lenght_line))
-            # cv2.line(image, p1, p2, blue, 3)
+            cv2.line(image, p1, p2, gray, 2)
 
             left_eye_3d_projection, jacobian = cv2.projectPoints(left_pupil_3d, rot_vec_left_eye, trans_vec_left_eye, cam_matrix, dist_matrix)
-            p1 = (int(left_pupil_2d[0]), int(left_pupil_2d[1]))
-            p2 = (int(left_pupil_2d[0] - yaw * lenght_line), int(left_pupil_2d[1] - pitch * lenght_line))
-            # cv2.line(image, p1, p2, blue, 3)
+            p1_left = (int(left_pupil_2d[0]), int(left_pupil_2d[1]))
+            p2_left = (int(left_pupil_2d[0] - yaw * lenght_line), int(left_pupil_2d[1] - pitch * lenght_line))
+            # cv2.line(image, p1_left, p2_left, blue, 3)
 
             right_eye_3d_projection, jacobian = cv2.projectPoints(right_pupil_3d, rot_vec_left_eye, trans_vec_left_eye, cam_matrix, dist_matrix)
-            p1 = (int(right_pupil_2d[0]), int(right_pupil_2d[1]))
-            p2 = (int(right_pupil_2d[0] - yaw * lenght_line), int(right_pupil_2d[1] - pitch * lenght_line))
-            # cv2.line(image, p1, p2, blue, 3)
+            p1_right = (int(right_pupil_2d[0]), int(right_pupil_2d[1]))
+            p2_right = (int(right_pupil_2d[0] - yaw * lenght_line), int(right_pupil_2d[1] - pitch * lenght_line))
+            # cv2.line(image, p1_right, p2_right, blue, 3)
 
 
             "HEAD GAZING"
-            cv2.putText(image, "P = "+str(np.round(angles[0]*1800, 2))+" Y = "+str(np.round(-angles[1]*1800, 2))+" R = "+str(np.round(angles[2]*1800, 2)), (50, 300), cv2.FONT_HERSHEY_SIMPLEX, font_size/2, blue, 2) 
+            # cv2.putText(image, "P = "+str(np.round(angles[0]*1800, 2))+" Y = "+str(np.round(-angles[1]*1800, 2))+" R = "+str(np.round(angles[2]*1800, 2)), (50, 300), cv2.FONT_HERSHEY_SIMPLEX, font_size/2, blue, 2) 
             p1 = (int(left_pupil_2d[0]), int(left_pupil_2d[1]))
             p2 = (int(right_pupil_2d[0]), int(right_pupil_2d[1]))
-            cv2.line(image, p1, p2, green, 1)
+            # cv2.line(image, p1, p2, green, 1)
 
 
             if abs(angles[0]*1800) > 30 or abs(angles[1]*1800) > 30:
-                cv2.putText(image, "NOT FOCUS", (50, 200), cv2.FONT_HERSHEY_SIMPLEX, font_size, red, 2) 
+                cv2.putText(image, "HEAD NOT FOCUS!", (20, 80), cv2.FONT_HERSHEY_SIMPLEX, font_size, red, 2) 
             else:
-                cv2.putText(image, "FOCUS", (50, 200), cv2.FONT_HERSHEY_SIMPLEX, font_size, red, 2) 
+                cv2.putText(image, "HEAD FOCUS", (20, 80), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
             
-
-
-
-
-
-
 
 
             "EYE GAZING"
+
+            cv2.line(image, p1_right, p2_right, gray, 2)
+            diff_r = (point_REIC[0] - r_eye_center[0],  point_REIC[1] - r_eye_center[1])
+            yaw, pitch = -diff_r[0]*5, diff_r[1]*5
+            p2_right = (int(p2_right[0] - yaw * lenght_line), int(p2_right[1] - pitch * lenght_line))
+            cv2.line(image, p1_right, p2_right, blue, 3)
+
+
+            cv2.line(image, p1_left, p2_left, gray, 2)
+            diff_l = (point_LEIC[0] - l_eye_center[0],  point_LEIC[1] - l_eye_center[1])
+            yaw, pitch = -diff_l[0]*5, diff_l[1]*5
+            p2_left = (int(p2_left[0] - yaw * lenght_line), int(p2_left[1] - pitch * lenght_line))
+            cv2.line(image, p1_left, p2_left, green, 3)            
+
+            val = 1.5
+            if (np.linalg.norm(diff_r) < 3.5 or np.linalg.norm(diff_l) < 3.5) and (abs(diff_r[1]) < val and abs(diff_l[1]) < val):
+                cv2.putText(image, "EYES FOCUS", (20, 110), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
+            else :
+                cv2.putText(image, "EYES NOT FOCUS!", (20, 110), cv2.FONT_HERSHEY_SIMPLEX, font_size, red, 2) 
             
+            # cv2.putText(image, str(np.round(diff_r[0], 3))+" "+str(np.round(diff_r[1], 5))+" "+ str(np.round(np.linalg.norm(diff_r), 5)), (250, 250), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
+            # cv2.putText(image, str(np.round(diff_l[0], 3))+" "+str(np.round(diff_l[1], 5))+" "+ str(np.round(np.linalg.norm(diff_l), 5)), (250, 290), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
 
 
 
