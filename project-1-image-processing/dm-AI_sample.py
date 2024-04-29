@@ -23,15 +23,10 @@
 # 1 - Import the needed libraries
 
 import cv2
-
 import mediapipe as mp
-
 import numpy as np 
-
 import time
-
 import statistics as st
-
 import os
 
 "COLORS"
@@ -67,7 +62,6 @@ drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
 
 if False:
     index = 0
-    arr = []
     while True:
         dev = cv2.VideoCapture(index)
         try:
@@ -76,7 +70,6 @@ if False:
             break
         dev.release()
         index += 1
-    print("* arr ", arr)
 
 
 # 3 - Open the video source
@@ -153,7 +146,7 @@ while cap.isOpened():
     dist_matrix = np.zeros((4, 1), dtype=np.float64)
 
     # 4.3 - Get the landmark coordinates
-
+    
     if results.multi_face_landmarks:
 
         for face_landmarks in results.multi_face_landmarks:
@@ -374,7 +367,8 @@ while cap.isOpened():
             if ear_L < 0.8 * EAR_max:
                 time_open_L = time.time()
 
-            if (time.time()-time_open_R > 5 or time.time()-time_open_L > 5):
+            time_threshold = 10
+            if (time.time()-time_open_R > time_threshold or time.time()-time_open_L > time_threshold):
                 drowsy = 1
             
             if drowsy > 0:
@@ -384,8 +378,7 @@ while cap.isOpened():
                 cv2.putText(image, "AWAKE", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
 
             # cv2.putText(image, str(np.round(EAR_max, 3))+" "+str(np.round(time_open_R, 5))+" "+str(np.round(drowsy, 5)), (200, 200), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
-            # cv2.putText(image, str(np.round(EAR_max, 3))+" "+str(np.round(time_open_L, 5))+" "+str(np.round(drowsy, 5)), (270, 120), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
-        
+            # cv2.putText(image, str(np.round(EAR_max, 3))+" "+str(np.round(time_open_L, 5))+" "+str(np.round(drowsy, 5)), (270, 120), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2)       
 
 
             "ROT MATRICES"
@@ -457,7 +450,6 @@ while cap.isOpened():
 
 
             "EYE GAZING"
-
             cv2.line(image, p1_right, p2_right, gray, 2)
             diff_r = (point_REIC[0] - r_eye_center[0],  point_REIC[1] - r_eye_center[1])
             yaw, pitch = -diff_r[0]*5, diff_r[1]*5
