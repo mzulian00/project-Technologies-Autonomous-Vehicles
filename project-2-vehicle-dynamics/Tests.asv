@@ -1,0 +1,92 @@
+close all; clc; clear; 
+warning off
+
+%% ------------------------- Initialization -------------------------
+
+% Simulink model name
+simulink_model_name = 'Tyre_Pac96';
+% Simulation time
+Time_sim = 11;
+% Load tyre data (Pacejka model coefficients)
+WheelFile = 'Tyre215_50_19_Comb';      
+% Wheel Initialization
+pacn = [];
+eval(['[Pacejka]=' WheelFile ';'])
+pacn = struct2cell(Pacejka);
+for ii = 1:size(pacn)    Pace(ii) = pacn{ii}; end
+% coefficients of Pacejka tyre model
+Pacn = Pace';     
+
+
+% -- default coefficient setting -- %
+% camber angle
+gamma0 = 0;     
+gamma_slope = 0;
+
+% slip
+s0 = 0;         
+s_slope = 0;      
+tau_slip = 0.1; % (tau = Lrel / V)
+
+% slip angle
+alfa0 = 0;      
+alfa_slope = 0;   
+tau_alfa = 0.1;
+
+% vertical load
+Fz0 = 1500;     
+Fz_slope = 0;
+
+% friction
+mu0 = 1;        
+mu_slope = 0;   
+
+% velocity
+V = 100/3.6; % 100 [Km/h]
+V0 = 0;
+w0 = 0; 
+
+% wheel
+wheel_radius = 0.3;
+Ir = 1; % wheel inertia TODO
+
+% -- vehicle parameters --
+m = 1812; % kerb weight [Kg]
+wheelbase = 2.77; %  [m]
+cg_height = 0.55; % center of gravity height [m]
+
+peak_power = 150; % [kW]
+max_torque = 310; % [Nm]
+max_speed = 16000; % [rpm]
+gear_ratio = 10.5;
+pure_time_delay = 20; % [ms]
+motor_torque_delay = 50; % [ms]
+motor_eff = 0.9;
+transm_eff = 0.95;
+torsional_stiffness = 9000; % OPZIONALE!!
+battery_cap = 58; % [KWh]
+battery_volt = 800; % [V]
+rolling_res = 0.009;
+rolling_res_2 = 6.5e-6; % [s^2/m^2] questo è da moltipl per la vel
+
+
+% Air drag
+rho = 0.1; % air density TODO find value
+Af = 2.36; % frontal area
+Cx = 0.27; % drag coefficient
+
+
+% Plot settings 
+F_Size = 14; % FontSize
+plotcol = {'--k','-r','-.b',':g','.m','-k'};
+
+
+
+%% ------------------------- Test 1  -------------------------
+
+% Run simulation
+sim(simulink_model_name);
+
+
+
+
