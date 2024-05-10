@@ -1,7 +1,7 @@
 close all; clc; clear; 
 warning off
 
-%% ------------------------- Initialization -------------------------
+%% ------------------------- Initialization ------------------------- %%
 simulink_model_name = 'Tyre_Pac96';
 Time_sim = 11; % Simulation time
 
@@ -9,11 +9,46 @@ Time_sim = 11; % Simulation time
 WheelFile = 'Tyre215_50_19_Comb';
 eval(['[Pacejka]=' WheelFile ';'])
 pacn = struct2cell(Pacejka);
-for ii = 1:size(pacn)    Pace(ii) = pacn{ii}; end
+for ii = 1:size(pacn) Pace(ii)=pacn{ii}; end
 Pacn = Pace';     
 
+% ------ vehicle parameters ------ %
+m = 1812; % kerb weight [Kg]
+wheelbase = 2.77; %  [m]
+cg_height = 0.55; % center of gravity height [m]
+% TODO mancano valori dimensione car
+% ...
 
-% -- default coefficient setting -- %
+% wheel
+wheel_radius = 0.3;
+Ir = 0.675; % wheel inertia TODO find value [0.675 è di chatgpt]
+
+% motor
+peak_power = 150; % [kW]
+max_torque = 310; % [Nm]
+max_speed = 16000; % [rpm]
+gear_ratio = 10.5;
+motor_delay = 0.02; % [s]
+motor_risetime = 0.05; % [s]
+motor_eff = 0.9;
+transm_eff = 0.95;
+torsional_stiffness = 9000; % OPZIONALE!!
+battery_cap = 58; % [KWh]
+battery_volt = 800; % [V]
+f0 = 0.009; % rolling resistance
+f2 = 6.5e-6; % [s^2/m^2] 
+
+% brakes
+brake_delay = 0.02; % [s]
+brake_risetime = 0.025; % [s]
+
+% air drag
+rho = 1.225; % [kg/m³] air density 
+Af = 2.36; % frontal area
+Cx = 0.27; % drag coefficient
+
+
+% ------ signals coefficients setting ------ %
 % camber angle
 gamma0 = 0;     
 gamma_slope = 0;
@@ -29,7 +64,7 @@ alfa_slope = 0;
 tau_alfa = 0.1;
 
 % vertical load
-Fz0 = 1500;     
+Fz0 = m*9.81; % car weigth [N], 1812*9.81 = 17 kN
 Fz_slope = 0;
 
 % friction
@@ -38,52 +73,28 @@ mu_slope = 0;
 
 % velocity
 V = 100/3.6; % 100 [Km/h]
-V0 = 0;
-w0 = 0; 
+V0 = 0.1;
+w0 = 0.1; 
 
-% -- vehicle parameters -- %
-m = 1812; % kerb weight [Kg]
-wheelbase = 2.77; %  [m]
-cg_height = 0.55; % center of gravity height [m]
+% acceleration pedal
+Tm0 = 1000;
+accel_time = 0.001;
 
-% wheel
-wheel_radius = 0.3;
-Ir = 1; % wheel inertia TODO find value
-
-% motor
-peak_power = 150; % [kW]
-max_torque = 310; % [Nm]
-max_speed = 16000; % [rpm]
-gear_ratio = 10.5;
-motor_delay = 0.02; % [s]
-motor_risetime = 0.05; % [s]
-motor_eff = 0.9;
-transm_eff = 0.95;
-torsional_stiffness = 9000; % OPZIONALE!!
-battery_cap = 58; % [KWh]
-battery_volt = 800; % [V]
-f0 = 0.009; % rolling resistance
-f2 = 6.5e-6; % [s^2/m^2] questo è da moltipl per la vel
-
-% brakes
-brake_delay = 0.02; % [s]
-brake_risetime = 0.025; % [s]
-
-% air drag
-rho = 0.1; % air density TODO find value
-Af = 2.36; % frontal area
-Cx = 0.27; % drag coefficient
+% brakes pedal
+Tb0 = 1000;
+brake_time = 2;
 
 
 
 
-% Plot settings 
-F_Size = 14; % FontSize
-plotcol = {'--k','-r','-.b',':g','.m','-k'};
+
+% ------ Plot settings ------ %
+% F_Size = 14; % FontSize
+% plotcol = {'--k','-r','-.b',':g','.m','-k'};
 
 
 
-%% ------------------------- Test 1  -------------------------
+%% ------------------------- Test 1 ------------------------- %%
 
 % Run simulation
 sim(simulink_model_name);
