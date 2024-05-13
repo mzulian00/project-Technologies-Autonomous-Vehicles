@@ -18,9 +18,11 @@ wheelbase = 2.77; %  [m]
 cg_height = 0.55; % center of gravity height [m]
 % TODO mancano valori dimensione car
 % ...
+Fzf_ratio= 0.5;
+Fzr_ratio = 0.5;
 
 % wheel
-wheel_radius = 0.3;
+wheel_radius = 0.3; % [m]
 Ir = 0.675; % wheel inertia TODO find value [0.675 è di chatgpt]
 
 % motor
@@ -28,23 +30,32 @@ peak_power = 150; % [kW]
 max_torque = 310; % [Nm]
 max_speed = 16000; % [rpm]
 gear_ratio = 10.5;
-motor_delay = 0.02; % [s]
-motor_risetime = 0.05; % [s]
 motor_eff = 0.9;
 transm_eff = 0.95;
-torsional_stiffness = 9000; % OPZIONALE!!
+torsional_stiffness = 9000; % OPTIONAL!!
+
+% motor delay
+motor_delay = 0.02; % [s]
+motor_risetime = 0.05; % [s]
+
+% battery
 battery_cap = 58; % [KWh]
 battery_volt = 800; % [V]
-f0 = 0.009; % rolling resistance
-f2 = 6.5e-6; % [s^2/m^2] 
+
+% inverter
+inverter_eff = 0.9;
 
 % brakes
 brake_delay = 0.02; % [s]
 brake_risetime = 0.025; % [s]
 
+% rolling resistance
+f0 = 0.009; 
+f2 = 6.5e-6; % [s^2/m^2] 
+
 % air drag
 rho = 1.225; % [kg/m³] air density 
-Af = 2.36; % frontal area
+Af = 2.36; % [m^2] frontal area
 Cx = 0.27; % drag coefficient
 
 
@@ -77,12 +88,13 @@ V0 = 0.1;
 w0 = 0.1; 
 
 % acceleration pedal
-Tm0 = 1000;
+Tm0 = 2100;
 accel_time = 0.001;
 
 % brakes pedal
-Tb0 = 1000;
+Tb0 = 500;
 brake_time = 2;
+
 
 
 
