@@ -11,6 +11,7 @@ eval(['[Pacejka]=' WheelFile ';'])
 pacn = struct2cell(Pacejka);
 for ii = 1:size(pacn) Pace(ii)=pacn{ii}; end
 Pacn = Pace';     
+x = 1;
 
 % ------ vehicle parameters ------ %
 m = 1812; % kerb weight [Kg]
