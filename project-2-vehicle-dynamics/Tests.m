@@ -3,7 +3,7 @@ warning off
 
 %% ------------------------- Initialization ------------------------- %%
 simulink_model_name = 'Tyre_Pac96';
-Time_sim = 11; % Simulation time
+Time_sim = 12; % Simulation time
 
 % Load tyre data (Pacejka model coefficients)
 WheelFile = 'Tyre215_50_19_Comb';
@@ -23,7 +23,7 @@ Fzf_ratio= 0.5;
 Fzr_ratio = 0.5;
 
 % wheel
-wheel_radius = 0.3; % [m]
+wheel_radius = 0.3; % [m] % TODO find correct value 
 Ir = 0.675; % wheel inertia TODO find value [0.675 è di chatgpt]
 
 % motor
@@ -49,6 +49,8 @@ inverter_eff = 0.9;
 % brakes
 brake_delay = 0.02; % [s]
 brake_risetime = 0.025; % [s]
+brake_front = 0.25; % brake distribution 75:25 
+brake_rear = 0.75;
 
 % rolling resistance
 f0 = 0.009; 
