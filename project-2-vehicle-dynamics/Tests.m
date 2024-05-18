@@ -15,6 +15,7 @@ Pacn = Pace';
 
 % ------ vehicle parameters ------ %
 m = 1812; % kerb weight [Kg]
+g = 9.81; %gravità
 wheelbase = 2.77; %  [m]
 cg_height = 0.55; % center of gravity height [m]
 % TODO mancano valori dimensione car
