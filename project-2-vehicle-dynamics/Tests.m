@@ -23,8 +23,8 @@ Fzf_ratio= 0.5;
 Fzr_ratio = 0.5;
 
 % wheel
-wheel_radius = 0.3; % [m] % TODO find correct value 
-Ir = 0.675; % wheel inertia TODO find value [0.675 è di chatgpt]
+wheel_radius = 0.348; % [m] 
+Ir = 1.46; % wheel inertia [Kg*m^2] % 0.5*(11+13)*(0.348)^2
 
 % motor
 peak_power = 150; % [kW]
@@ -97,9 +97,6 @@ accel_time = 0.001;
 % brakes pedal
 Tb0 = 500;
 brake_time = 2;
-
-
-
 
 
 
