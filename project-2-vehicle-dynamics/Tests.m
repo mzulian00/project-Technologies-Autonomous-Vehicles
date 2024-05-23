@@ -10,7 +10,7 @@ WheelFile = 'Tyre215_50_19_Comb';
 eval(['[Pacejka]=' WheelFile ';'])
 pacn = struct2cell(Pacejka);
 for ii = 1:size(pacn) Pace(ii)=pacn{ii}; end
-Pacn = Pace';     
+Pacn = Pace';
 
 
 % ------ vehicle parameters ------ %
@@ -30,8 +30,8 @@ Ir = 1.46; % wheel inertia [Kg*m^2] % 0.5*(11+13)*(0.348)^2
 % motor
 peak_power = 150000; % [W]
 max_torque = 310; % [Nm]
-max_motor_speed = 16000; % [rpm]
-min_motor_speed = peak_power / max_torque; % [rpm]
+max_motor_speed = 16000 * 2*pi/60; % [rpm] -> [rad/sec]
+min_motor_speed = peak_power / max_torque; % [rad/sec] basespeed
 gear_ratio = 10.5;
 motor_eff = 0.9;
 transm_eff = 0.95;
@@ -56,7 +56,7 @@ brake_rear = 0.75;
 
 % rolling resistance
 f0 = 0.009; 
-f2 = 6.5e-6; % [s^2/m^2] 
+f2 = 6.5e-6; % [s^2/m^2]
 
 % air drag
 rho = 1.225; % [kg/m³] air density 
