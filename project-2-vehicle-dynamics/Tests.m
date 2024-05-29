@@ -3,7 +3,7 @@ warning off
 
 %% ------------------------- Initialization ------------------------- %%
 simulink_model_name = 'Tyre_Pac96';
-Time_sim = 10; % Simulation time
+Time_sim = 12; % Simulation time
 
 % Load tyre data (Pacejka model coefficients)
 WheelFile = 'Tyre215_50_19_Comb';
@@ -54,6 +54,7 @@ brake_risetime = 0.025; % [s]
 brake_front = 0.25; % brake distribution 75:25 
 brake_rear = 0.75;
 
+
 % rolling resistance
 f0 = 0.009; 
 f2 = 6.5e-6; % [s^2/m^2]
@@ -62,6 +63,11 @@ f2 = 6.5e-6; % [s^2/m^2]
 rho = 1.225; % [kg/m³] air density 
 Af = 2.36; % [m^2] frontal area
 Cx = 0.27; % drag coefficient
+
+% PID ABS
+Kp = 100;
+Ki = 100;
+Kd = 10;
 
 
 % ------ signals coefficients setting ------ %
@@ -96,25 +102,58 @@ w0 = 0.1;
 Tm0 = 2100;
 
 % brakes pedal
-Tb0 = 500;
+Tb_max = 3000;
 
-K = 10;
 
-% testname = 'test 2';
-% risetime_motor = 5;
-% t_stop_acc = 7;
-% risetime_brake = 10;
-% t_braking = 3;
 
-% save("test.mat", "testname", "risetime_motor", "t_stop_acc", "risetime_brake", "t_braking")
 
 % ------ Plot settings ------ %
 F_Size = 14; % FontSize
-plotcol = {'k','r','b','g','m','k'};
+plotcol = {'r','b','g','m','k'};
+
+
+%% ------------------------- Test ABS ------------------------- %%
+Tb_max = 4000;
+Kp_v = [0, 100];
+Ki_v = [0, 100, 100, 100];
+Kd_v = [0, 10, 10, 100];
+L = length(Kp_v);
+s = [];
+w = [];
+plotlegend = cell(L,1);
+for i = 1:L
+    Kp = Kp_v(i);
+    Ki = Ki_v(i);
+    Kd = Kd_v(i);
+    sim(simulink_model_name);
+    s(i,:) = sr;
+    w(i,:) = wr;
+    plotlegend{i} = sprintf('Kp=%d-Ki=%d,Kd=%d', Kp, Ki, Kd);
+end
+
+%%
+nome_fig = 'ABS slip';
+figure('Name',nome_fig,'NumberTitle','off','PaperType','A4')
+for i = 1:L
+    plot(t, s(i, :), plotcol{i});
+    hold on
+end
+grid on
+legend(plotlegend)
+
+nome_fig = 'ABS w';
+figure('Name',nome_fig,'NumberTitle','off','PaperType','A4')
+for i = 1:L
+    plot(t, w(i, :), plotcol{i});
+    hold on
+end
+grid on
+legend(plotlegend)
+
 
 %% ------------------------- Test 1 ------------------------- %%
 % TIP IN - TIP OFF
-sim(simulink_model_name);
+% sim(simulink_model_name);
 
 
 % subplot(2,1,1)
@@ -138,14 +177,6 @@ sim(simulink_model_name);
 % t_stop_acc = 7;
 % risetime_brake = 10;
 % t_braking = 7;
-
-
-
-
-
-
-
-
 
 
 % Time_sim = 1;
