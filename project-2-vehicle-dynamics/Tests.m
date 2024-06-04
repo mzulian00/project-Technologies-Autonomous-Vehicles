@@ -40,7 +40,7 @@ motor_delay = 0.02; % [s]
 motor_risetime = 0.05; % [s]
 
 % battery
-battery_cap = 58000; % [Wh] (NOT USED)
+battery_cap = 58000; % [Wh]
 battery_volt = 800; % [V] (NOT USED)
 inverter_eff = 0.9;
 
@@ -107,79 +107,148 @@ k_brake_antireverse = 10;
 
 return;
 
+
+
+
 %% ------------------------- Test 1 ------------------------- %%
-disp('----------- Test 1 - TIP IN - TIP OFF -----------')
-
+disp('----------- Test 1 - Longitudinal Acceleration -----------')
 test_number = 1;
-Time_sim = 60;
-
-t_stop_v = [8 12 16 20];
-L = length(t_stop_v);
-s = [];
-% w = [];
-Trv = [];
-Vv = [];
+t_stop_acc = Time_sim;
+Time_sim = 5;
+t_stop_acc = Time_sim;
+mu = 0.9;
+V0=0.1;
+w0=0.1;
 av = [];
-tv = [];
-air_drag_v = [];
-plotlegend = cell(L,1);
-for i = 1:L
-    t_stop_acc = t_stop_v(i);    
-    sim(simulink_model_name);
-    
-    if length(tv)<length(t), tv=t; end
-    av = padding(av, ax);
-    Vv = padding(Vv, V);
-    Trv = padding(Trv, Trf);
-    air_drag_v = padding(air_drag_v, air_drag);
-    s = padding(s, sf);
-    % w = padding(w, wf);    
-    maxvel = round(max(V*3.6));
-    plotlegend{i} = sprintf('V max = %d', maxvel );
-    fprintf('Peak velocity = %3d [Km/h], Stopping distance = %.2f [m]\n', maxvel, delta_x(end)-delta_x(find(t==t_stop_acc)))
-end
+plotlegend = cell(2,1);
+
+% PID Torque Control System OFF
+Kp_TCS = 0;
+Ki_TCS= 0;
+Kd_TCS = 0;
+
+sim(simulink_model_name);
+av(:, 1) = ax;
+
+% PID Torque Control System ON
+Kp_TCS = 200;
+Ki_TCS= 100;
+Kd_TCS = 100;
+
+sim(simulink_model_name);
+av(:, 2) = ax;
 
 close all
-PLOT(t, av, L, plotlegend, 'a [m/s^2]', 'TEST 1 - Longitudinal acceleration')
-PLOT(t, Vv*3.6, L, plotlegend, 'V [Km/h]','TEST 1 - Vehicle velocity')
-PLOT(t, Trv, L, plotlegend, 'Tr','TEST 1 - Rolling resistance')
-PLOT(t, air_drag_v, L, plotlegend, 'Fa','TEST 1 - Air drag')
-PLOT(t, s, L, plotlegend, 's','TEST 1 - Slip')
+PLOT(t, av, 2, {'TCS OFF', 'TCS ON'}, 'a [m/s^2]','TEST 1 - Longitudinal acceleration')
 
-t_stop_acc = 12;
+mu=0.85;V0=0.1;w0=0.1;t_stop_acc=12;
+
+
 
 %% ------------------------- Test 2 ------------------------- %%
-disp('------ Test 2 - Acceleration and braking ------')
-
+disp('----------- Test 2 - Acceleration Times -----------')
 test_number = 2;
+Time_sim = 50;
+t_stop_acc = Time_sim;
+sim(simulink_model_name);
+
+
+close all
+PLOT(t, V*3.6, 1, {}, 'V [Km/h]','TEST 2 - Vehicle velocity')
+hold on
+plot([t(1) t(end) ], [100 100]) , hold on
+plot([t(1) t(end) ], [150 150]) , hold on
+plot([t(1) t(end) ], [200 200])
+% t_100 = find(V*3.6<=100.1 && V*3.6 >= 99.9)
+t_150 = find(V*3.6==150.0)
+t_200 = find(V*3.6==200)
+
+%% ------------------------- Test 3 ------------------------- %%
+disp('----------- Test 3 - Power Loss -----------')
+test_number = 3;
+Time_sim = 50;
+t_stop_acc = Time_sim;
 
 sim(simulink_model_name);
 
 close all
-PLOT(t, ax, 1, {'ax'}, 'a','TEST 2 - Longitudinal acceleration')
-PLOT(t, [Tbr, Tb_PID], 2, {'Tbrake rear', 'Tbrake front'}, 'Tb','TEST 2 - Brakes')
-PLOT(t, V*3.6, 1, {'V [Km/h]'}, 'V','TEST 2 - Vehicle velocity')
-PLOT(t, [sr, sf], 2, {'s rear', 's front'}, 's','TEST 2 - Slip')
-PLOT(t, E, 1, {'E'},'E', 'TEST 2 - Recuperated Energy')
+PLOT(t, V, 1, {}, 'V [Km/h]','TEST 3 - Vehicle velocity')
+%rolling resistance, aerodynamic drag, electric powertrain,transmission and longitudinal tyre slip power losses
+
+
+
+%% ------------------------- Test 4 ------------------------- %%
+disp('---- Test 4 - Energy consumption and achievable range ----')
+test_number = 4;
+Time_sim = 150;
+t_stop_acc = Time_sim;
+
+sim(simulink_model_name);
+
+
+fprintf('Peak velocity = %3d\n', round(max(V)*3.6))
+fprintf('Stopping distance = %.2f [m]\n', delta_x(end))
+
+
+close all
+PLOT(t, V, 1, {}, 'V [Km/h]','TEST 4 - Vehicle velocity')
+PLOT(t, E, 1, {}, 'E [kWh]','TEST 4 - Energy Consumption'), hold on
+plot([t(1) t(end)], [battery_cap battery_cap]), hold on
+plot([t(1) t(end)], [0 0])
+
+%% ------------------------- Test 5 ------------------------- %%
+disp('----------- Test 5 - TIP IN - TIP OFF -----------')
+
+test_number = 5;
+Time_sim = 20;
+V0 = 50/3.6;
+w0 = V0/wheel_radius;
+t_stop_acc = 1.1;
+t_braking = 5;
+
+sim(simulink_model_name);
+
+close all
+PLOT(t, ax, 1, {}, 'a [m/s^2]', 'TEST 5 - Longitudinal acceleration')
+PLOT(t, V*3.6, 1, {}, 'V [Km/h]','TEST 5 - Vehicle velocity')
+PLOT(t, Trr, 1, {}, 'Tr','TEST 5 - Rolling resistance')
+PLOT(t, air_drag, 1, {}, 'Fa','TEST 5 - Air drag')
+PLOT(t, [sf, sr], 2, {'s front', 's rear'}, 's','TEST 5 - Slip')
+
+V0 = 0.1;w0 = 0.1;
+
+%% ------------------------- Test 6 ------------------------- %%
+disp('------ Test 6 - Recuperated Energy  ------')
+
+test_number = 6;
+Time_sim = 100;
+t_stop_acc = 15;
+V0 = 0.1; w0 = 0.1;
+sim(simulink_model_name);
+
+close all
+PLOT(t, ax, 1, {'ax'}, 'a','TEST 6 - Longitudinal acceleration')
+PLOT(t, V*3.6, 1, {'V [Km/h]'}, 'V [Km/h]','TEST 6 - Vehicle velocity')
+PLOT(t, E, 1, {'E'},'E', 'TEST 6 - Recuperated Energy')
 fprintf('Stopping distance = %.2f [m]\n', delta_x(end)-delta_x(find(t==t_braking)))
 fprintf('Recuperated Energy = %.2f\n', E(end)-min(E))
-fprintf('Wasted Energy = %.2f\n', -min(E))
-fprintf('Total Wasted Energy = %.2f\n', -E(end))
+fprintf('Used Energy = %.2f\n', battery_cap-min(E))
+fprintf('Total Wasted Energy = %.2f\n', battery_cap-E(end))
 
 
-%% ------------------------- Test 3 ------------------------- %%
-disp('--------- Test 3 - Emergency braking ---------')
+%% ------------------------- Test 7 ------------------------- %%
+disp('--------- Test 7 - Emergency braking ---------')
 disp('mu = 0.90 - Cobblestone')
 disp('mu = 0.85 - Asphalt dry')
 disp('mu = 0.75 - Asphalt wet')
-disp('mu = 0.20 - Snow')
 
-test_number = 3;
+test_number = 7;
+Time_sim = 100;
 V0 = 100/3.6;
 w0 = V0/wheel_radius-20;
 t_stop_acc = 0.2;
 t_braking = 0.2;
-mu_v = [0.9, 0.85, 0.75, 0.2];
+mu_v = [0.9, 0.85, 0.75];
 L = length(mu_v);
 s = [];
 w = [];
@@ -202,11 +271,12 @@ for i = 1:L
 end
 
 close all
-PLOT(t, s, L, plotlegend,'s', 'TEST 3 - Slip Front')
-PLOT(t, w, L, plotlegend, 'w','TEST 3 - Front Wheel Speed')
-PLOT(t, Tbv, L, plotlegend, 'Tb','TEST 3 - Front Brakes')
-PLOT(t, Vv*3.6, L, plotlegend, 'V','TEST 3 - Vehicle Speed')
-PLOT(t, av, L, plotlegend, 'a','TEST 3 - Longitudinal acceleration')
+PLOT(t, s, L, plotlegend,'s', 'TEST 7 - Slip Front')
+PLOT(t, w, L, plotlegend, 'w [rad/s]','TEST 7 - Front Wheel Speed')
+PLOT(t, Tbv, L, plotlegend, 'Tb [Nm]','TEST 7 - Front Brakes')
+PLOT(t, Vv*3.6, L, plotlegend, 'V [Km/h]','TEST 7 - Vehicle Speed')
+PLOT(t, av, L, plotlegend, 'a [m/s^2]','TEST 7 - Longitudinal acceleration')
+
 mu=0.85;V0=0.1;w0=0.1;t_stop_acc=12;t_braking=12;
 
 
