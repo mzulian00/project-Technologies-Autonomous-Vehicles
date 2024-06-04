@@ -19,7 +19,7 @@ g = 9.81; % gravity [m/s^2]
 wheelbase = 2.77; %  [m]
 cg_height = 0.55; % center of gravity height [m]
 
-Fzf_ratio= 0.5; % equal weight distribution when V=0
+Fzf_ratio = 0.5; % equal weight distribution when V=0
 Fzr_ratio = 0.5;
 
 % wheel
@@ -67,6 +67,7 @@ alfa0 = 0; alfa_slope = 0; tau_alfa = 0.1;
 
 % slip
 s0 = 0.1;          
+Lrel = 0.3; % 0.12<->0.45 [m]
 tau_slip = 0.1; % (tau = Lrel / V)
 
 % friction
@@ -91,7 +92,7 @@ Ki_ABS = 100;
 Kd_ABS = 10;
 slip_reference_ABS = -0.15;
 max_Torque_ABS = Tb_max*brake_front*0.5*0.5; 
-% ABS can act only on 80% of the rear brakes torque
+% ABS can act only on 50% of the rear brakes torque
 
 % PID Torque Control System
 Kp_TCS = 200;
@@ -107,18 +108,19 @@ k_brake_antireverse = 10;
 return;
 
 %% ------------------------- Test 1 ------------------------- %%
-disp('------ Test 1 - TIP IN - TIP OFF ------')
+disp('----------- Test 1 - TIP IN - TIP OFF -----------')
 
 test_number = 1;
-Time_sim = 30;
+Time_sim = 40;
 t_stop_acc = 12;
 sim(simulink_model_name);
 
 close all
-PLOT(t, ax, 1, {'ax'}, 'TEST 1 - Longitudinal acceleration')
-PLOT(t, V*3.6, 1, {'V [Km/h]'}, 'TEST 1 - Vehicle velocity')
-PLOT(t, [Trr, Trf], 2, {'Tr rear', 'Tr front'}, 'TEST 1 - Rolling resistance')
-PLOT(t, air_drag, 1, {'air drag'}, 'TEST 1 - Air drag')
+PLOT(t, ax, 1, {'ax'}, 'a', 'TEST 1 - Longitudinal acceleration')
+PLOT(t, V*3.6, 1, {'V [Km/h]'}, 'V','TEST 1 - Vehicle velocity')
+PLOT(t, [Trr, Trf], 2, {'Tr rear', 'Tr front'}, 'Tr','TEST 1 - Rolling resistance')
+PLOT(t, air_drag, 1, {'air drag'}, 'Fa','TEST 1 - Air drag')
+PLOT(t, [sf, sr], 2, {'s front', 's rear'}, 's','TEST 1 - Slip')
 fprintf('Peak velocity = %3d [Km/h]\n', round(max(V*3.6)))
 
 
@@ -130,18 +132,18 @@ test_number = 2;
 sim(simulink_model_name);
 
 close all
-PLOT(t, ax, 1, {'ax'}, 'TEST 2 - Longitudinal acceleration')
-PLOT(t, [Tbr, Tb_PID], 2, {'Tbrake rear', 'Tbrake front'}, 'TEST 2 - Brakes')
-PLOT(t, V*3.6, 1, {'V [Km/h]'}, 'TEST 2 - Vehicle velocity')
-PLOT(t, [sr, sf], 2, {'s rear', 's front'}, 'TEST 2 - Slip')
-PLOT(t, E, 1, {'E'}, 'TEST 2 - Recuperated Energy')
+PLOT(t, ax, 1, {'ax'}, 'a','TEST 2 - Longitudinal acceleration')
+PLOT(t, [Tbr, Tb_PID], 2, {'Tbrake rear', 'Tbrake front'}, 'Tb','TEST 2 - Brakes')
+PLOT(t, V*3.6, 1, {'V [Km/h]'}, 'V','TEST 2 - Vehicle velocity')
+PLOT(t, [sr, sf], 2, {'s rear', 's front'}, 's','TEST 2 - Slip')
+PLOT(t, E, 1, {'E'},'E', 'TEST 2 - Recuperated Energy')
 fprintf('Stopping distance = %.2f [m]\n', delta_x(end)-delta_x(find(t==t_braking)))
 fprintf('Recuperated Energy = %.2f\n', E(end)-min(E))
 fprintf('Wasted Energy = %.2f\n', -min(E))
 fprintf('Total Wasted Energy = %.2f\n', -E(end))
 
 %% ------------------------- Test 3 ------------------------- %%
-disp('------ Test 2 - Emergency braking ------')
+disp('--------- Test 3 - Emergency braking ---------')
 disp('mu = 0.90 - Cobblestone')
 disp('mu = 0.85 - Asphalt dry')
 disp('mu = 0.75 - Asphalt wet')
@@ -172,18 +174,17 @@ for i = 1:L
     av = padding(av, ax);
     plotlegend{i} = sprintf('mu = %.2f', mu);
     fprintf('mu = %.2f, Stopping distance = %.2f [m]\n', mu, delta_x(end)-delta_x(find(t==t_braking)))
-
 end
 
 close all
-PLOT(t, s, L, plotlegend, 'TEST 3 - Slip Front')
-PLOT(t, w, L, plotlegend, 'TEST 3 - Front Wheel Speed')
-PLOT(t, Tbv, L, plotlegend, 'TEST 3 - Front Brakes')
-PLOT(t, Vv*3.6, L, plotlegend, 'TEST 3 - Vehicle Speed')
-PLOT(t, av, L, plotlegend, 'TEST 3 - Longitudinal acceleration')
+PLOT(t, s, L, plotlegend,'s', 'TEST 3 - Slip Front')
+PLOT(t, w, L, plotlegend, 'w','TEST 3 - Front Wheel Speed')
+PLOT(t, Tbv, L, plotlegend, 'Tb','TEST 3 - Front Brakes')
+PLOT(t, Vv*3.6, L, plotlegend, 'V','TEST 3 - Vehicle Speed')
+PLOT(t, av, L, plotlegend, 'a','TEST 3 - Longitudinal acceleration')
 mu=0.85;V0=0.1;w0=0.1;t_stop_acc=12;t_braking=12;
 %% -------------------- Test 3 (COMPARE ABS ON/OFF) -------------------- %%
-% Emergency braking
+disp('--------- Test 3 - COMPARE ABS ON/OFF ---------')
 test_number = 3;
 Time_sim = 20;
 
@@ -207,14 +208,16 @@ w = padding(wf_OFF, wf);
 fprintf('Stopping distance ABS ON  = %.2f\n', delta_x(end)-delta_x(find(t==t_braking)))
 
 close all
-PLOT(t, [Tbf, Tb_PID], 2, {'Tbf ABS OFF', 'Tbf ABS ON'}, 'TEST 3 - Front brakes')
+PLOT(t, [Tbf, Tb_PID], 2, {'Tbf ABS OFF', 'Tbf ABS ON'},'Tb', 'TEST 3 - Front brakes')
 if length(t_OFF)>length(t),t = t_OFF;end
-PLOT(t, V*3.6, 2, {'V ABS OFF [Km/h]', 'V ABS ON [Km/h]'}, 'TEST 3 - Vehicle velocity')
-PLOT(t, s, 2, {'s ABS OFF', 's ABS ON'}, 'TEST 3 - Front Slip')
-PLOT(t, w, 2, {'w ABS OFF', 'w ABS ON'}, 'TEST 3 - Front Wheels angular vel')
+PLOT(t, V*3.6, 2, {'V ABS OFF [Km/h]', 'V','V ABS ON [Km/h]'}, 'TEST 3 - Vehicle velocity')
+PLOT(t, s, 2, {'s ABS OFF', 's ABS ON'},'s', 'TEST 3 - Front Slip')
+PLOT(t, w, 2, {'w ABS OFF', 'w ABS ON'},'w', 'TEST 3 - Front Wheels angular vel')
 
 
 %% ------------------------- Tuning ABS ------------------------- %%
+disp('-------------------- Tuning ABS --------------------')
+
 test_number = 3;
 Time_sim = 20;
 k_brake_antireverse = 10;
@@ -242,19 +245,20 @@ for i = 1:L
 end
 
 close all
-PLOT(t, s, L, plotlegend, 'ABS s')
-PLOT(t, w, L, plotlegend, 'ABS w')
-PLOT(t, Tbv, L, plotlegend, 'ABS Tb')
-PLOT(t, Vv*3.6, L, plotlegend, 'ABS V')
+PLOT(t, s, L, plotlegend, 's','ABS s')
+PLOT(t, w, L, plotlegend, 'w','ABS w')
+PLOT(t, Tbv, L, plotlegend, 'Tb','ABS Tb')
+PLOT(t, Vv*3.6, L, plotlegend,'V', 'ABS V')
 
 
 %% ------------------------- Tuning Torque control  ------------------------- %%
+disp('-------------------- Tuning TCS --------------------')
 test_number = 2;
 Time_sim = 2;
 
-Kp_v = [0, 200];
-Ki_v = [0, 100, 50, 100];
-Kd_v = [0, 100, 50, 100];
+Kp_v = [0, 1000];
+Ki_v = [0, 100, 500, 1000];
+Kd_v = [0, 100, 100, 100];
 L = length(Kp_v);
 s = [];
 w = [];
@@ -274,52 +278,60 @@ for i = 1:L
 end
 
 close all
-PLOT(t, s, L, plotlegend, 'Torque Control System s')
-PLOT(t, w, L, plotlegend, 'Torque Control System w')
-PLOT(t, Tmv, L, plotlegend, 'Torque Control System Tm')
-PLOT(t, Vv, L, plotlegend, 'Torque Control System V')
+PLOT(t, s, L, plotlegend, 's', 'Torque Control System s')
+PLOT(t, w, L, plotlegend, 'w', 'Torque Control System w')
+PLOT(t, Tmv, L, plotlegend, 'Tm', 'Torque Control System Tm')
+PLOT(t, Vv, L, plotlegend, 'V','Torque Control System V')
 
 legend(plotlegend)
 
+%%
+close all, clc
+PLOT(t, sf, 1, {'s'}, 's', 'Torque Control System s')
+
 %% -----------------------------------------------------------------------%%
 
-function PLOT(t, x, L, plotlegend, nome_fig)
-plotcol = {'r','b','g','m','k'};
-figure('Name',nome_fig,'NumberTitle','off','PaperType','A4')
-if L == 1
-    plot(t, x, plotcol{1});
-else
-    for i = 1:L
-        plot(t, x(:, i), plotcol{i});
-        hold on
+function PLOT(t, x, L, plotlegend, yaxis, nome_fig)
+    plotcol = {'r','b','g','m','k'};
+    figure('Name',nome_fig,'NumberTitle','off','PaperType','A4')
+    if L == 1
+        plot(t, x, plotcol{1});
+    else
+        for i = 1:L
+            plot(t, x(:, i), plotcol{i});
+            hold on
+        end
     end
-end
-grid on
-if isempty(plotlegend) == 0
-    legend(plotlegend)
-end
+    grid on
+    xlabel('t');
+    ylabel(yaxis);
 
+    if isempty(plotlegend) == 0
+        legend(plotlegend)
+    end
+    saveas(gcf, strcat('imgs\', nome_fig, '.png'));  % Save as PNG file
 end
-
+    
 function V = padding(v1, v2)
-
-[L1, N] = size(v1);
-L2 = length(v2);
-
-if L1 == 0
-    V1 = v2;
-    V2 = [];
+    
+    [L1, N] = size(v1);
+    L2 = length(v2);
+    
+    if L1 == 0
+        V1 = v2;
+        V2 = [];
+        V = [V1, V2];
+        return
+    end
+    
+    if L1 > L2
+        V1=v1;
+        V2=[v2;zeros(L1-L2,1)];
+    else
+        V1 = zeros(L2, N);
+        V1(1:L1,:)=v1;
+        V2=v2;
+    end
     V = [V1, V2];
-    return
-end
-
-if L1 > L2
-    V1=v1;
-    V2=[v2;zeros(L1-L2,1)];
-else
-    V1 = zeros(L2, N);
-    V1(1:L1,:)=v1;
-    V2=v2;
-end
-V = [V1, V2];
+    
 end
