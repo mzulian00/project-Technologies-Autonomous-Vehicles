@@ -157,29 +157,38 @@ Kp_TCS = 0;Ki_TCS= 0;Kd_TCS = 0;% TCS OFF
 %% ------------------------- Test 2 ------------------------- %%
 disp('----------- Test 2 - Acceleration Times -----------')
 test_number = 2;
-Time_sim = 250;
+Time_sim = 400;
 t_stop_acc = Time_sim;
 
 sim(simulink_model_name);
 
-close all
-PLOT(t, V*3.6, 1, {}, 'V [Km/h]','TEST 2 - Vehicle velocity')
 find_time_given_vel = @(v,vv,tt) round(tt(find(vv*3.6>=v,1)),1) 
 t_100 = find_time_given_vel(100,V,t);
 t_150 = find_time_given_vel(150,V,t);
 t_200 = find_time_given_vel(200,V,t);
 peak_vel = round(max(V)*3.6);
 t_peak = find_time_given_vel(max(V)*3.6,V,t);
-hold on, plot(t_100, 100, '*b','Markersize', 10) 
-hold on, plot(t_150, 150, '*b','Markersize', 10) 
-hold on, plot(t_200, 200, '*b','Markersize', 10) 
-hold on, plot(t_peak, peak_vel, '*b','Markersize', 10) 
-
-saveas(gcf, strcat('imgs\', 'TEST 2 - Vehicle velocity', '.png'));  % Save as PNG file
 fprintf('100 [Km/h], acceleration time = %.2f [sec]\n', t_100)
 fprintf('150 [Km/h], acceleration time = %.2f [sec]\n', t_150)
 fprintf('200 [Km/h], acceleration time = %.2f [sec]\n', t_200)
 fprintf('Peak velocity = %3d [Km/h], at time %.2f [sec]\n', peak_vel , t_peak)
+
+close all
+index_short = 1:(find(t>t_200+3,1));
+PLOT(t(index_short), V(index_short)*3.6, 1, {}, 'V [Km/h]','TEST 2 - Significant Vehicle velocity')
+hold on, plot(t_100, 100, '*b','Markersize', 10) 
+hold on, plot(t_150, 150, '*b','Markersize', 10) 
+hold on, plot(t_200, 200, '*b','Markersize', 10) 
+saveas(gcf, strcat('imgs\', 'TEST 2 - Significant Vehicle velocity', '.png'));  % Save as PNG file
+
+PLOT(t, V*3.6, 1, {}, 'V [Km/h]','TEST 2 - Peak Vehicle velocity')
+hold on, plot(t_100, 100, '*b','Markersize', 10) 
+hold on, plot(t_150, 150, '*b','Markersize', 10) 
+hold on, plot(t_200, 200, '*b','Markersize', 10) 
+hold on, plot(t_peak, peak_vel, '*b','Markersize', 10) 
+saveas(gcf, strcat('imgs\', 'TEST 2 - Peak Vehicle velocity', '.png'));  % Save as PNG file
+
+
 
 %% ------------------------- Test 3 ------------------------- %%
 disp('----------- Test 3 - Power Loss -----------')
@@ -203,8 +212,9 @@ PLOT(t, [Pot_transm, Pot_mec, Pot_air, Pot_Trr, Pot_Trf]*1e-3, 5, plotlegend , '
 disp('---- Test 4 - Energy consumption and achievable range ----')
 test_number = 4;
 Time_sim = 2000;
-
-t_stop_acc_v = [0.5, 0.7, 1];
+% only for this test 't_stop_acc' isn't the time at which the accelerator
+% stops but it's the % of the max pression on the acc pedal
+t_stop_acc_v = [0.5, 0.7, 1]; 
 L = length(t_stop_acc_v);
 Ev = [];
 Vv = [];
@@ -233,7 +243,7 @@ legend(plotlegend)
 
 %% ------------------------- Test 5 ------------------------- %%
 disp('----------- Test 5 - TIP IN - TIP OFF -----------')
-
+% one sec of 100% acceleration folowed by 1 sec of 100% braking
 test_number = 5;
 Time_sim = 7;
 V0 = 50/3.6;
