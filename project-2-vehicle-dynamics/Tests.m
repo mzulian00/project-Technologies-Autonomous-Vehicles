@@ -108,13 +108,10 @@ k_brake_antireverse = 10;
 
 return;
 
-
-
-
 %% ------------------------- Test 1 ------------------------- %%
 disp('----------- Test 1 - Longitudinal Acceleration -----------')
-test_number = 1;
 
+test_number = 1;
 Time_sim = 3;
 
 mu = 0.9; % high friction asphalt
@@ -206,12 +203,13 @@ PLOT(t, Pot_mec*1e-3, 1, {}, 'P [kW]','TEST 3 - Power lost electric powertrain')
 PLOT(t, Pot_transm*1e-3, 1, {}, 'P [kW]','TEST 3 - Power lost transmission')
 PLOT(t, [Pot_Fxr, Pot_Fxf]*1e-3, 2, {'P Fx rear', 'P Fx front'}, 'P [kW]','TEST 3 - Power lost longitudinal slip')
 plotlegend = {'Transmission','motor','air drag','Tr rear', 'Tr front'};
+saveas(gcf, strcat('imgs\', 'TEST 3 - Power lost longitudinal slip', '.png'));
 PLOT(t, [Pot_transm, Pot_mec, Pot_air, Pot_Trr, Pot_Trf]*1e-3, 5, plotlegend , 'P [kW]','TEST 3 - Power lost')
 
 %% ------------------------- Test 4 ------------------------- %%
-disp('---- Test 4 - Energy consumption and achievable range ----')
+disp('----------- Test 4 - Energy consumption and achievable range ----')
 test_number = 4;
-Time_sim = 2000;
+Time_sim = 2500;
 % only for this test 't_stop_acc' isn't the time at which the accelerator
 % stops but it's the % of the max pression on the acc pedal
 t_stop_acc_v = [0.5, 0.7, 1]; 
@@ -232,13 +230,15 @@ for i = 1:L
 end
 
 close all
-PLOT(tv, Vv, L, plotlegend, 'V [Km/h]','TEST 4 - Vehicle velocity')
+PLOT(tv, Vv*3.6, L, plotlegend, 'V [Km/h]','TEST 4 - Vehicle velocity')
 PLOT(tv, Ev, L, plotlegend, 'E [KJ]','TEST 4 - Energy Consumption'), hold on
 plot([tv(1) tv(end)], [battery_cap battery_cap], '--b'), hold on
 plot([tv(1) tv(end)], [0 0], '--b')
 plotlegend{L+1} = 'full battery';
 plotlegend{L+2} = 'empty battery';
 legend(plotlegend)
+ylim([-10000, battery_cap+10000]);
+saveas(gcf, strcat('imgs\', 'TEST 4 - Energy Consumption', '.png'));
 
 
 %% ------------------------- Test 5 ------------------------- %%
@@ -260,6 +260,7 @@ PLOT(t, [sf, sr], 2, {'s front', 's rear'}, 's','TEST 5 - Slip')
 
 V0 = 0.1; w0 = 0.1;
 
+
 %% ------------------------- Test 6 ------------------------- %%
 disp('----------- Test 6 - Recuperated Energy  -----------')
 
@@ -270,11 +271,15 @@ V0 = 0.1; w0 = 0.1;
 sim(simulink_model_name);
 
 close all
-PLOT(t, ax, 1, {'ax'}, 'a','TEST 6 - Longitudinal acceleration')
-PLOT(t, V*3.6, 1, {'V'}, 'V [Km/h]','TEST 6 - Vehicle velocity')
+PLOT(t, ax, 1, {}, 'a [m/s^2]','TEST 6 - Longitudinal acceleration')
+PLOT(t, V*3.6, 1, {}, 'V [Km/h]','TEST 6 - Vehicle velocity')
+PLOT(t, Tm_reg, 1, {}, 'Tm regenerative [Nm]','TEST 6 - Vehicle velocity')
 PLOT(t, E, 1, {'E'},'E [KJ]', 'TEST 6 - Recuperated Energy'), hold on
 plot([t(1) t(end)], [battery_cap battery_cap], '--b')
 legend({'Energy','full battery'})
+ylim([min(E)-30, battery_cap+30]);
+saveas(gcf, strcat('imgs\', 'TEST 6 - Recuperated Energy', '.png'));
+
 fprintf('Stopping distance = %.2f [m]\n', delta_x(end)-delta_x(find(t==t_braking)))
 fprintf('Recuperated Energy = %.2f [KJ]\n', E(end)-min(E))
 fprintf('Used Energy = %.2f [KJ]\n', battery_cap-min(E))
@@ -282,7 +287,7 @@ fprintf('Total Wasted Energy = %.2f [KJ]\n', battery_cap-E(end))
 
 
 %% ------------------------- Test 7 ------------------------- %%
-disp('-------------- Test 7 - Emergency braking --------------')
+disp('-------------- Test 7.1 - Emergency braking --------------')
 disp('mu = 0.85 - Asphalt dry')
 disp('mu = 0.75 - Asphalt wet')
 
@@ -317,8 +322,8 @@ for i = 1:L
 end
 
 close all
-index_short = 1:find(tv>=0.6,1)
-t_short = tv(index_short)
+index_short = 1:find(tv>=0.6,1);
+t_short = tv(index_short);
 PLOT(t_short, s(index_short, :), L, plotlegend,'s', 'TEST 7.1 - Slip Front')
 PLOT(t_short, w(index_short, :), L, plotlegend, 'w [rad/s]','TEST 7.1 - Front Wheel Speed')
 PLOT(t_short, Tbv(index_short, :), L, plotlegend, 'Tb [Nm]','TEST 7.1 - Front Brakes')
@@ -329,7 +334,7 @@ mu=0.85;V0=0.1;w0=0.1;
 
 
 %% -------------------- Test 7 (COMPARE ABS ON/OFF) -------------------- %%
-disp('--------- Test 7 - COMPARE ABS ON/OFF ---------')
+disp('--------- Test 7.2 - COMPARE ABS ON/OFF ---------')
 test_number = 7;
 Time_sim = 5;
 V0 = 100/3.6;
@@ -377,8 +382,8 @@ end
 
 close all, clc
 L=L*2;
-index_short = 1:find(tv>=0.6,1)
-t_short = tv(index_short)
+index_short = 1:find(tv>=0.6,1);
+t_short = tv(index_short);
 PLOT(t_short, s(index_short, :), L, plotlegend,'s', 'TEST 7.2 - Slip Front')
 PLOT(t_short, w(index_short, :), L, plotlegend, 'w [rad/s]','TEST 7.2 - Front Wheel Speed')
 PLOT(t_short, Tbv(index_short, :), L, plotlegend, 'Tb [Nm]','TEST 7.2 - Front Brakes')
@@ -486,6 +491,7 @@ function PLOT(t, x, L, plotlegend, yaxis, nome_fig)
     grid on
     xlabel('time [seconds]');
     ylabel(yaxis);
+    xlim([t(1), t(end)]);
     title(nome_fig)
 
     if isempty(plotlegend) == 0
