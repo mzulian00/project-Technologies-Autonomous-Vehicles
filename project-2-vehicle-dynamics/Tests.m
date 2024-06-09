@@ -40,7 +40,7 @@ motor_delay = 0.02; % [s]
 motor_risetime = 0.05; % [s]
 
 % battery
-battery_cap = 58*3.6*1e3; % [KWh] -> [K Joule]
+battery_cap = 58; % [KWh] -> [K Joule]
 battery_volt = 800; % [V] (NOT USED)
 inverter_eff = 0.9;
 
@@ -77,22 +77,24 @@ mu = 0.85; % asphalt dry
 % V = 100/3.6; % 100 [Km/h] = 27.7 [m/s]
 V0 = 0.1;
 w0 = 0.1;
+k_brake_antireverse = 10;
 
 % acceleration pedal
 Tm_max = max_torque*gear_ratio*motor_eff;
-t_stop_acc = 12;
+t_stop_acc = 12; % time when the acc pedal is released
 
 % brakes pedal
 Tb_max = Tm_max*4;
-t_braking = 12;
+t_braking = 12; % time when the brake pedal is pressed
+
 
 % PID ABS
 Kp_ABS = 1e5;
 Ki_ABS = 100;
 Kd_ABS = 10;
 slip_reference_ABS = -0.15;
-max_Torque_ABS = Tb_max*brake_front*0.5*0.5; 
-% ABS can act only on 50% of the rear brakes torque
+max_Torque_ABS = Tb_max*brake_front*0.5*0.6; 
+% ABS can act only on 60% of the rear brakes torque
 
 % PID Torque Control System
 Kp_TCS = 500;
@@ -104,8 +106,8 @@ max_Torque_TCS = Tm_max*0.5 *0.5;
 Kp_TCS = 0;Ki_TCS= 0;Kd_TCS = 0; % OFF
 
 test_number = 2;
-k_brake_antireverse = 10;
 
+disp('----------- Model Initialized -----------')
 return;
 
 %% ------------------------- Test 1 ------------------------- %%
@@ -149,7 +151,7 @@ PLOT(t, [Tm, Tm_TCS], 2, {'TCS OFF','TCS ON'}, 'Tm [Nm]','TEST 1 - Motor Torque'
 
 mu=0.85;V0=0.1;w0=0.1;
 Kp_TCS = 0;Ki_TCS= 0;Kd_TCS = 0;% TCS OFF
-
+Kp_ABS = 0;Ki_ABS= 0;Kd_ABS = 0;% TCS OFF
 
 %% ------------------------- Test 2 ------------------------- %%
 disp('----------- Test 2 - Acceleration Times -----------')
@@ -159,12 +161,12 @@ t_stop_acc = Time_sim;
 
 sim(simulink_model_name);
 
-find_time_given_vel = @(v,vv,tt) round(tt(find(vv*3.6>=v,1)),1) 
+find_time_given_vel = @(v,vv,tt) round(tt(find(vv*3.6>=v,1)),1);
 t_100 = find_time_given_vel(100,V,t);
 t_150 = find_time_given_vel(150,V,t);
 t_200 = find_time_given_vel(200,V,t);
 peak_vel = round(max(V)*3.6);
-t_peak = find_time_given_vel(max(V)*3.6,V,t);
+t_peak = find_time_given_vel(247,V,t);
 fprintf('100 [Km/h], acceleration time = %.2f [sec]\n', t_100)
 fprintf('150 [Km/h], acceleration time = %.2f [sec]\n', t_150)
 fprintf('200 [Km/h], acceleration time = %.2f [sec]\n', t_200)
@@ -173,16 +175,16 @@ fprintf('Peak velocity = %3d [Km/h], at time %.2f [sec]\n', peak_vel , t_peak)
 close all
 index_short = 1:(find(t>t_200+3,1));
 PLOT(t(index_short), V(index_short)*3.6, 1, {}, 'V [Km/h]','TEST 2 - Significant Vehicle velocity')
-hold on, plot(t_100, 100, '*b','Markersize', 10) 
-hold on, plot(t_150, 150, '*b','Markersize', 10) 
-hold on, plot(t_200, 200, '*b','Markersize', 10) 
+hold on, plot(t_100, 100, '*r','Markersize', 10) 
+hold on, plot(t_150, 150, '*r','Markersize', 10) 
+hold on, plot(t_200, 200, '*r','Markersize', 10) 
 saveas(gcf, strcat('imgs\', 'TEST 2 - Significant Vehicle velocity', '.png'));  % Save as PNG file
 
 PLOT(t, V*3.6, 1, {}, 'V [Km/h]','TEST 2 - Peak Vehicle velocity')
-hold on, plot(t_100, 100, '*b','Markersize', 10) 
-hold on, plot(t_150, 150, '*b','Markersize', 10) 
-hold on, plot(t_200, 200, '*b','Markersize', 10) 
-hold on, plot(t_peak, peak_vel, '*b','Markersize', 10) 
+hold on, plot(t_100, 100, '*r','Markersize', 10) 
+hold on, plot(t_150, 150, '*r','Markersize', 10) 
+hold on, plot(t_200, 200, '*r','Markersize', 10) 
+hold on, plot(t_peak, peak_vel, '*r','Markersize', 10) 
 saveas(gcf, strcat('imgs\', 'TEST 2 - Peak Vehicle velocity', '.png'));  % Save as PNG file
 
 
@@ -191,7 +193,7 @@ saveas(gcf, strcat('imgs\', 'TEST 2 - Peak Vehicle velocity', '.png'));  % Save 
 disp('----------- Test 3 - Power Loss -----------')
 test_number = 3;
 Time_sim = 20;
-t_stop_acc = Time_sim/2;
+t_stop_acc = Time_sim/2; % half acc half motor brake
 
 sim(simulink_model_name);
 
@@ -226,18 +228,19 @@ for i = 1:L
     Vv = padding(Vv, V);
     plotlegend{i} = sprintf('maxV = %.2f', round(max(V)*3.6));
     fprintf('Peak velocity = %3d [Km/h]\n', round(max(V)*3.6))
-    fprintf('Stopping distance = %.2f [m]\n', delta_x(end))
+    fprintf('Traveled distance = %d [Km]\n', round(delta_x(end)*1e-3))
+    fprintf('Elapsed time = %d [s]\n', round(t(end)))
 end
 
 close all
 PLOT(tv, Vv*3.6, L, plotlegend, 'V [Km/h]','TEST 4 - Vehicle velocity')
-PLOT(tv, Ev, L, plotlegend, 'E [KJ]','TEST 4 - Energy Consumption'), hold on
+PLOT(tv, Ev, L, plotlegend, 'E [Kwh]','TEST 4 - Energy Consumption'), hold on
 plot([tv(1) tv(end)], [battery_cap battery_cap], '--b'), hold on
 plot([tv(1) tv(end)], [0 0], '--b')
-plotlegend{L+1} = 'full battery';
+plotlegend{L+1} = 'full battery 58kwh';
 plotlegend{L+2} = 'empty battery';
 legend(plotlegend)
-ylim([-10000, battery_cap+10000]);
+ylim([-1, battery_cap+1]);
 saveas(gcf, strcat('imgs\', 'TEST 4 - Energy Consumption', '.png'));
 
 
@@ -265,25 +268,25 @@ V0 = 0.1; w0 = 0.1;
 disp('----------- Test 6 - Recuperated Energy  -----------')
 
 test_number = 6;
-Time_sim = 100;
-t_stop_acc = 15;
+Time_sim = 140;
+t_stop_acc = 70;
 V0 = 0.1; w0 = 0.1;
 sim(simulink_model_name);
 
 close all
 PLOT(t, ax, 1, {}, 'a [m/s^2]','TEST 6 - Longitudinal acceleration')
 PLOT(t, V*3.6, 1, {}, 'V [Km/h]','TEST 6 - Vehicle velocity')
-PLOT(t, Tm_reg, 1, {}, 'Tm regenerative [Nm]','TEST 6 - Vehicle velocity')
-PLOT(t, E, 1, {'E'},'E [KJ]', 'TEST 6 - Recuperated Energy'), hold on
+PLOT(t, Tm_reg, 1, {}, 'Tm regenerative [Nm]','TEST 6 - Regenerative Braking')
+PLOT(t, E, 1, {'E'},'E [kWh]', 'TEST 6 - Recuperated Energy'), hold on
 plot([t(1) t(end)], [battery_cap battery_cap], '--b')
 legend({'Energy','full battery'})
-ylim([min(E)-30, battery_cap+30]);
+ylim([min(E)-0.1, battery_cap+0.1]);
 saveas(gcf, strcat('imgs\', 'TEST 6 - Recuperated Energy', '.png'));
 
-fprintf('Stopping distance = %.2f [m]\n', delta_x(end)-delta_x(find(t==t_braking)))
-fprintf('Recuperated Energy = %.2f [KJ]\n', E(end)-min(E))
-fprintf('Used Energy = %.2f [KJ]\n', battery_cap-min(E))
-fprintf('Total Wasted Energy = %.2f [KJ]\n', battery_cap-E(end))
+fprintf('Stopping distance = %.2f [Km]\n', round(0.001*(delta_x(end)-delta_x(find(t==t_braking))),2))
+fprintf('Recuperated Energy = %.2f [kWh]\n', E(end)-min(E))
+fprintf('Used Energy = %.2f [kWh]\n', battery_cap-min(E))
+fprintf('Total Wasted Energy = %.2f [kWh]\n', battery_cap-E(end))
 
 
 %% ------------------------- Test 7 ------------------------- %%
@@ -294,7 +297,7 @@ disp('mu = 0.75 - Asphalt wet')
 test_number = 7;
 Time_sim = 100;
 V0 = 100/3.6;
-w0 = V0/wheel_radius-20;
+w0 = V0/wheel_radius;
 t_stop_acc = 0.2;
 t_braking = 0.2;
 mu_v = [0.85, 0.75];
@@ -330,6 +333,8 @@ PLOT(t_short, Tbv(index_short, :), L, plotlegend, 'Tb [Nm]','TEST 7.1 - Front Br
 PLOT(tv, Vv*3.6, L, plotlegend, 'V [Km/h]','TEST 7.1 - Vehicle Speed')
 PLOT(t_short, av(index_short, :), L, plotlegend, 'a [m/s^2]','TEST 7.1 - Longitudinal acceleration')
 
+% ABS OFF
+Kp_ABS = 0;Ki_ABS = 0;Kd_ABS = 0;
 mu=0.85;V0=0.1;w0=0.1;
 
 
@@ -380,9 +385,9 @@ for i = 1:L
     fprintf('ABS ON,  mu = %.2f, Stopping distance = %.2f [m]\n', mu, delta_x(end)-delta_x(find(t==t_braking)))
 end
 
-close all, clc
+close all
 L=L*2;
-index_short = 1:find(tv>=0.6,1);
+index_short = 1:find(tv>=1.5,1);
 t_short = tv(index_short);
 PLOT(t_short, s(index_short, :), L, plotlegend,'s', 'TEST 7.2 - Slip Front')
 PLOT(t_short, w(index_short, :), L, plotlegend, 'w [rad/s]','TEST 7.2 - Front Wheel Speed')
@@ -391,7 +396,8 @@ PLOT(tv, Vv*3.6, L, plotlegend, 'V [Km/h]','TEST 7.2 - Vehicle Speed')
 PLOT(t_short, av(index_short, :), L, plotlegend, 'a [m/s^2]','TEST 7.2 - Longitudinal acceleration')
 
 mu=0.85;V0=0.1;w0=0.1;t_stop_acc=12;t_braking=12;
-
+% ABS OFF
+Kp_ABS = 0;Ki_ABS = 0;Kd_ABS = 0;
 %% ------------------------- Tuning ABS ------------------------- %%
 disp('------------------- Tuning ABS ------------------')
 
@@ -402,9 +408,9 @@ w0 = V0/wheel_radius;
 t_stop_acc = 0.2;
 t_braking = 0.2;
 k_brake_antireverse = 10;
-Kp_v = [0, 1e5, 1e10, 1e5];
-Ki_v = [0, 1, 1, 100, 1];
-Kd_v = [0, 1, 1, 1, 1];
+Kp_v = [0, 1e2, 1e10, 1e5];
+Ki_v = [0, 100, 1, 100, 1];
+Kd_v = [0, 10, 1, 1, 1];
 L = length(Kp_v);
 s = [];
 w = [];
@@ -470,13 +476,13 @@ PLOT(tv, Vv, L, plotlegend, 'V [Km/h]','Torque Control System V')
 
 %%
 close all, clc
-PLOT(t, [V,V,V,V,V,V], 5, {}, 'V', 'Prova')
+% PLOT(t, [V,V,V,V,V,V], 5, {}, 'V', 'Prova')
 
 %% -----------------------------------------------------------------------%%
 
 function PLOT(t, x, L, plotlegend, yaxis, nome_fig)
     linewidth = 1.4;
-    plotcol = {'r','b','g','m','k'};
+    plotcol = {'b','r','g','m','k'};
     figure('Name',nome_fig,'NumberTitle','off','PaperType','A4')
     if L == 1
         plot(t, x, plotcol{1},'LineWidth', linewidth);

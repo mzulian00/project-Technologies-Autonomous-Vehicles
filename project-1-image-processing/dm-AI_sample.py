@@ -36,6 +36,12 @@ red =   (0, 0, 255)
 gray =  (128, 128, 128)
 font_size = 0.6
 
+"DEBUG"
+DEBUG_ALL = False
+DEBUG_P = False
+DEBUG_FACE = False
+DEBUG_EYE_GAZE = False
+DEBUG_HEAD_GAZE = True
 
 # 2 - Set the desired setting
 
@@ -152,6 +158,8 @@ while cap.isOpened():
         for face_landmarks in results.multi_face_landmarks:
 
             for idx, lm in enumerate(face_landmarks.landmark):
+                if DEBUG_ALL:
+                    cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=blue, thickness=-1)
 
                 # Eye Gaze (Iris Tracking)
                 # Left eye indices list
@@ -224,19 +232,27 @@ while cap.isOpened():
                 "L EYE CONTOUR P2 P3 P5 P6"
                 if idx == 385:
                     point_LP2 = (lm.x * img_w, lm.y * img_h)
-                    # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
+                    if DEBUG_P:
+                        cv2.putText(image, "P2", (int(lm.x * img_w), int(lm.y * img_h)), cv2.FONT_HERSHEY_SIMPLEX, font_size/1.5, blue, 2) 
+                        cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
                 if idx == 387:
                     point_LP3 = (lm.x * img_w, lm.y * img_h)
-                    # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
+                    if DEBUG_P:
+                        cv2.putText(image, "P3", (int(lm.x * img_w), int(lm.y * img_h)), cv2.FONT_HERSHEY_SIMPLEX, font_size/1.5, blue, 2) 
+                        cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
                 if idx == 373:
                     point_LP5 = (lm.x * img_w, lm.y * img_h)
-                    # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
+                    if DEBUG_P:
+                        cv2.putText(image, "P5", (int(lm.x * img_w), int(lm.y * img_h)), cv2.FONT_HERSHEY_SIMPLEX, font_size/1.5, blue, 2) 
+                        cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
                 if idx == 380:
                     point_LP6 = (lm.x * img_w, lm.y * img_h)
-                    # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
+                    if DEBUG_P:
+                        cv2.putText(image, "P6", (int(lm.x * img_w), int(lm.y * img_h)), cv2.FONT_HERSHEY_SIMPLEX, font_size/1.5, blue, 2)
+                        cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
 
 
@@ -290,7 +306,8 @@ while cap.isOpened():
                     if idx == 1:
                         nose_2d = (lm.x * img_w, lm.y * img_h)
                         nose_3d = (lm.x * img_w, lm.y * img_h, lm.z * 3000)
-                        # cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=4, color=blue, thickness=-1)
+                    if DEBUG_FACE:
+                        cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=4, color=blue, thickness=-1)
 
                     x, y = int(lm.x * img_w), int(lm.y * img_h)
 
@@ -306,7 +323,8 @@ while cap.isOpened():
                     if idx == 473:
                         left_pupil_2d = (lm.x * img_w, lm.y * img_h)
                         left_pupil_3d = (lm.x * img_w, lm.y * img_h, lm.z * 3000)
-                        cv2.circle(image, (int(left_pupil_2d[0]), int(left_pupil_2d[1])), radius=2, color=green, thickness=-1)
+                        if DEBUG_EYE_GAZE:
+                            cv2.circle(image, (int(left_pupil_2d[0]), int(left_pupil_2d[1])), radius=2, color=green, thickness=-1)
 
                     x, y = int(lm.x * img_w), int(lm.y * img_h)
                     left_eye_2d.append([x, y])
@@ -332,8 +350,9 @@ while cap.isOpened():
 
             horizontal_threshold = 0.1
             # cv2.circle(image, (int(l_eye_center[0]), int(l_eye_center[1])), radius=int(horizontal_threshold * l_eye_width), color=blue, thickness=-1) #center of eye and its radius 
-            cv2.circle(image, (int(point_LEIC[0]), int(point_LEIC[1])), radius=3, color=green, thickness=-1) # Center of iris
-            cv2.circle(image, (int(l_eye_center[0]), int(l_eye_center[1])), radius=2, color=gray, thickness=-1) # Center of eye
+            if DEBUG_EYE_GAZE:
+                cv2.circle(image, (int(point_LEIC[0]), int(point_LEIC[1])), radius=3, color=green, thickness=-1) # Center of iris
+                cv2.circle(image, (int(l_eye_center[0]), int(l_eye_center[1])), radius=2, color=gray, thickness=-1) # Center of eye
             # print("Left eye: x = " + str(np.round(point_LEIC[0],0)) + " , y = " + str(np.round(point_LEIC[1],0)))
             cv2.putText(image, "LEFT EYE:  x = " + str(np.round(point_LEIC[0],0)) + ", y = " + str(np.round(point_LEIC[1],0)), (270, 50), cv2.FONT_HERSHEY_SIMPLEX, font_size, green, 2) 
 
@@ -344,8 +363,9 @@ while cap.isOpened():
             r_eye_center = [(point_REL[0] + point_RER[0])/2 ,(point_REB[1] + point_RET[1])/2]
 
             #cv2.circle(image, (int(r_eye_center[0]), int(r_eye_center[1])), radius=int(horizontal_threshold * r_eye_width), color=blue, thickness=-1) #center of eye and its radius 
-            cv2.circle(image, (int(point_REIC[0]), int(point_REIC[1])), radius=3, color=red, thickness=-1) # Center of iris
-            cv2.circle(image, (int(r_eye_center[0]), int(r_eye_center[1])), radius=2, color=gray, thickness=-1) # Center of eye
+            if DEBUG_EYE_GAZE:
+                cv2.circle(image, (int(point_REIC[0]), int(point_REIC[1])), radius=3, color=red, thickness=-1) # Center of iris
+                cv2.circle(image, (int(r_eye_center[0]), int(r_eye_center[1])), radius=2, color=gray, thickness=-1) # Center of eye
             #print("right eye: x = " + str(np.round(point_REIC[0],0)) + " , y = " + str(np.round(point_REIC[1],0)))
             cv2.putText(image, "RIGHT EYE: x = " + str(np.round(point_REIC[0],0)) + ", y = " + str(np.round(point_REIC[1],0)), (270, 80), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2)
 
@@ -422,17 +442,20 @@ while cap.isOpened():
             nose_3d_projection, jacobian = cv2.projectPoints(nose_3d, rot_vec, trans_vec, cam_matrix, dist_matrix)
             p1 = (int(nose_2d[0]), int(nose_2d[1]))
             p2 = (int(nose_2d[0] - yaw * lenght_line), int(nose_2d[1] - pitch * lenght_line))
-            cv2.line(image, p1, p2, gray, 2)
+            if DEBUG_HEAD_GAZE:
+                cv2.line(image, p1, p2, green, 3)
 
             left_eye_3d_projection, jacobian = cv2.projectPoints(left_pupil_3d, rot_vec_left_eye, trans_vec_left_eye, cam_matrix, dist_matrix)
             p1_left = (int(left_pupil_2d[0]), int(left_pupil_2d[1]))
             p2_left = (int(left_pupil_2d[0] - yaw * lenght_line), int(left_pupil_2d[1] - pitch * lenght_line))
-            # cv2.line(image, p1_left, p2_left, blue, 3)
+            if DEBUG_HEAD_GAZE:
+                cv2.line(image, p1_left, p2_left, blue, 3)
 
             right_eye_3d_projection, jacobian = cv2.projectPoints(right_pupil_3d, rot_vec_left_eye, trans_vec_left_eye, cam_matrix, dist_matrix)
             p1_right = (int(right_pupil_2d[0]), int(right_pupil_2d[1]))
             p2_right = (int(right_pupil_2d[0] - yaw * lenght_line), int(right_pupil_2d[1] - pitch * lenght_line))
-            # cv2.line(image, p1_right, p2_right, blue, 3)
+            if DEBUG_HEAD_GAZE:
+                cv2.line(image, p1_right, p2_right, blue, 3)
 
 
             "HEAD GAZING"
@@ -450,18 +473,23 @@ while cap.isOpened():
 
 
             "EYE GAZING"
-            cv2.line(image, p1_right, p2_right, gray, 2)
+            
+            if DEBUG_EYE_GAZE:
+                cv2.line(image, p1_right, p2_right, gray, 2)
             diff_r = (point_REIC[0] - r_eye_center[0],  point_REIC[1] - r_eye_center[1])
             yaw, pitch = -diff_r[0]*5, diff_r[1]*5
             p2_right = (int(p2_right[0] - yaw * lenght_line), int(p2_right[1] - pitch * lenght_line))
-            cv2.line(image, p1_right, p2_right, blue, 3)
+            if DEBUG_EYE_GAZE:
+                cv2.line(image, p1_right, p2_right, blue, 3)
 
 
-            cv2.line(image, p1_left, p2_left, gray, 2)
+            if DEBUG_EYE_GAZE:
+                cv2.line(image, p1_left, p2_left, gray, 2)
             diff_l = (point_LEIC[0] - l_eye_center[0],  point_LEIC[1] - l_eye_center[1])
             yaw, pitch = -diff_l[0]*5, diff_l[1]*5
             p2_left = (int(p2_left[0] - yaw * lenght_line), int(p2_left[1] - pitch * lenght_line))
-            cv2.line(image, p1_left, p2_left, green, 3)            
+            if DEBUG_EYE_GAZE:
+                cv2.line(image, p1_left, p2_left, green, 3)            
 
             val = 1.5
             if (np.linalg.norm(diff_r) < 3.5 or np.linalg.norm(diff_l) < 3.5) and (abs(diff_r[1]) < val and abs(diff_l[1]) < val):
