@@ -41,7 +41,8 @@ DEBUG_ALL = False
 DEBUG_P = False
 DEBUG_FACE = False
 DEBUG_EYE_GAZE = False
-DEBUG_HEAD_GAZE = True
+DEBUG_HEAD_GAZE = False
+VERBOSE = True
 
 # 2 - Set the desired setting
 
@@ -213,7 +214,9 @@ while cap.isOpened():
                 "L EYE CONTOUR"
                 if idx == 362:
                     point_LER = (lm.x * img_w, lm.y * img_h)
-                    #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
+                    if DEBUG_P:
+                        cv2.putText(image, "P1", (int(lm.x * img_w), int(lm.y * img_h)), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
+                        cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
                 if idx == 374:
                     point_LEB = (lm.x * img_w, lm.y * img_h)
@@ -221,37 +224,40 @@ while cap.isOpened():
 
                 if idx == 263:
                     point_LEL = (lm.x * img_w, lm.y * img_h)
-                    #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
+                    if DEBUG_P:
+                        cv2.putText(image, "P4", (int(lm.x * img_w), int(lm.y * img_h)), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
+                        cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
                 if idx == 386:
                     point_LET = (lm.x * img_w, lm.y * img_h)
                     #cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
 
-
+                
                 "L EYE CONTOUR P2 P3 P5 P6"
                 if idx == 385:
                     point_LP2 = (lm.x * img_w, lm.y * img_h)
+                    
                     if DEBUG_P:
-                        cv2.putText(image, "P2", (int(lm.x * img_w), int(lm.y * img_h)), cv2.FONT_HERSHEY_SIMPLEX, font_size/1.5, blue, 2) 
+                        cv2.putText(image, "P2", (int(lm.x * img_w), int(lm.y * img_h)), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
                         cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
                 if idx == 387:
                     point_LP3 = (lm.x * img_w, lm.y * img_h)
                     if DEBUG_P:
-                        cv2.putText(image, "P3", (int(lm.x * img_w), int(lm.y * img_h)), cv2.FONT_HERSHEY_SIMPLEX, font_size/1.5, blue, 2) 
+                        cv2.putText(image, "P3", (int(lm.x * img_w), int(lm.y * img_h)), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
                         cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
                 if idx == 373:
                     point_LP5 = (lm.x * img_w, lm.y * img_h)
                     if DEBUG_P:
-                        cv2.putText(image, "P5", (int(lm.x * img_w), int(lm.y * img_h)), cv2.FONT_HERSHEY_SIMPLEX, font_size/1.5, blue, 2) 
+                        cv2.putText(image, "P5", (int(lm.x * img_w), int(lm.y * img_h)), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
                         cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
                 if idx == 380:
                     point_LP6 = (lm.x * img_w, lm.y * img_h)
                     if DEBUG_P:
-                        cv2.putText(image, "P6", (int(lm.x * img_w), int(lm.y * img_h)), cv2.FONT_HERSHEY_SIMPLEX, font_size/1.5, blue, 2)
+                        cv2.putText(image, "P6", (int(lm.x * img_w), int(lm.y * img_h)), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2)
                         cv2.circle(image, (int(lm.x * img_w), int(lm.y * img_h)), radius=2, color=red, thickness=-1)
 
 
@@ -354,7 +360,8 @@ while cap.isOpened():
                 cv2.circle(image, (int(point_LEIC[0]), int(point_LEIC[1])), radius=3, color=green, thickness=-1) # Center of iris
                 cv2.circle(image, (int(l_eye_center[0]), int(l_eye_center[1])), radius=2, color=gray, thickness=-1) # Center of eye
             # print("Left eye: x = " + str(np.round(point_LEIC[0],0)) + " , y = " + str(np.round(point_LEIC[1],0)))
-            cv2.putText(image, "LEFT EYE:  x = " + str(np.round(point_LEIC[0],0)) + ", y = " + str(np.round(point_LEIC[1],0)), (270, 50), cv2.FONT_HERSHEY_SIMPLEX, font_size, green, 2) 
+            if VERBOSE :
+                cv2.putText(image, "LEFT EYE:  x = " + str(np.round(point_LEIC[0],0)) + ", y = " + str(np.round(point_LEIC[1],0)), (270, 50), cv2.FONT_HERSHEY_SIMPLEX, font_size, green, 2) 
 
 
 
@@ -367,7 +374,8 @@ while cap.isOpened():
                 cv2.circle(image, (int(point_REIC[0]), int(point_REIC[1])), radius=3, color=red, thickness=-1) # Center of iris
                 cv2.circle(image, (int(r_eye_center[0]), int(r_eye_center[1])), radius=2, color=gray, thickness=-1) # Center of eye
             #print("right eye: x = " + str(np.round(point_REIC[0],0)) + " , y = " + str(np.round(point_REIC[1],0)))
-            cv2.putText(image, "RIGHT EYE: x = " + str(np.round(point_REIC[0],0)) + ", y = " + str(np.round(point_REIC[1],0)), (270, 80), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2)
+            if VERBOSE :
+                cv2.putText(image, "RIGHT EYE: x = " + str(np.round(point_REIC[0],0)) + ", y = " + str(np.round(point_REIC[1],0)), (270, 80), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2)
 
 
 
@@ -392,10 +400,12 @@ while cap.isOpened():
                 drowsy = 1
             
             if drowsy > 0:
-                cv2.putText(image, "DROWSY !", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, font_size, red, 2) 
+                if VERBOSE :
+                    cv2.putText(image, "DROWSY !", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, font_size, red, 2) 
                 drowsy -= 1/15
             else:
-                cv2.putText(image, "AWAKE", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
+                if VERBOSE :
+                    cv2.putText(image, "AWAKE", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
 
             # cv2.putText(image, str(np.round(EAR_max, 3))+" "+str(np.round(time_open_R, 5))+" "+str(np.round(drowsy, 5)), (200, 200), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
             # cv2.putText(image, str(np.round(EAR_max, 3))+" "+str(np.round(time_open_L, 5))+" "+str(np.round(drowsy, 5)), (270, 120), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2)       
@@ -466,14 +476,15 @@ while cap.isOpened():
 
 
             if abs(angles[0]*1800) > 30 or abs(angles[1]*1800) > 30:
-                cv2.putText(image, "HEAD NOT FOCUS!", (20, 80), cv2.FONT_HERSHEY_SIMPLEX, font_size, red, 2) 
+                if VERBOSE :
+                    cv2.putText(image, "HEAD NOT FOCUS!", (20, 80), cv2.FONT_HERSHEY_SIMPLEX, font_size, red, 2) 
             else:
-                cv2.putText(image, "HEAD FOCUS", (20, 80), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
+                if VERBOSE :
+                    cv2.putText(image, "HEAD FOCUS", (20, 80), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
             
 
 
             "EYE GAZING"
-            
             if DEBUG_EYE_GAZE:
                 cv2.line(image, p1_right, p2_right, gray, 2)
             diff_r = (point_REIC[0] - r_eye_center[0],  point_REIC[1] - r_eye_center[1])
@@ -493,9 +504,11 @@ while cap.isOpened():
 
             val = 1.5
             if (np.linalg.norm(diff_r) < 3.5 or np.linalg.norm(diff_l) < 3.5) and (abs(diff_r[1]) < val and abs(diff_l[1]) < val):
-                cv2.putText(image, "EYES FOCUS", (20, 110), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
+                if VERBOSE:
+                    cv2.putText(image, "EYES FOCUS", (20, 110), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
             else :
-                cv2.putText(image, "EYES NOT FOCUS!", (20, 110), cv2.FONT_HERSHEY_SIMPLEX, font_size, red, 2) 
+                if VERBOSE:
+                    cv2.putText(image, "EYES NOT FOCUS!", (20, 110), cv2.FONT_HERSHEY_SIMPLEX, font_size, red, 2) 
             
             # cv2.putText(image, str(np.round(diff_r[0], 3))+" "+str(np.round(diff_r[1], 5))+" "+ str(np.round(np.linalg.norm(diff_r), 5)), (250, 250), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
             # cv2.putText(image, str(np.round(diff_l[0], 3))+" "+str(np.round(diff_l[1], 5))+" "+ str(np.round(np.linalg.norm(diff_l), 5)), (250, 290), cv2.FONT_HERSHEY_SIMPLEX, font_size, blue, 2) 
@@ -518,8 +531,8 @@ while cap.isOpened():
             fps=0
 
         #print("FPS:", fps)
-
-        cv2.putText(image, f'FPS : {int(fps)}', (20,450), cv2.FONT_HERSHEY_SIMPLEX, 1.5, red, 2)
+        if VERBOSE:
+            cv2.putText(image, f'FPS : {int(fps)}', (20,450), cv2.FONT_HERSHEY_SIMPLEX, 1.5, red, 2)
 
         # 4.5 - Show the frame to the user
 
