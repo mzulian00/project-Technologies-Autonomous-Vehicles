@@ -40,7 +40,7 @@ font_size = 0.6
 DEBUG_ALL = False
 DEBUG_P = False
 DEBUG_FACE = False
-DEBUG_EYE_GAZE = False
+DEBUG_EYE_GAZE = True
 DEBUG_HEAD_GAZE = False
 VERBOSE = True
 

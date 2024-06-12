@@ -1,15 +1,18 @@
 %% Technologies for Autonomous Vehicles
 % SINGLE TRACK MODEL ========== FULL Version ============
 % close all; 
-clear; clc
+clear; clc; close all
 UIControl_FontSize_bak = get(0, 'DefaultUIControlFontSize');
 % Select simulation
 set(0, 'DefaultUIControlFontSize', 18);
-caso = menu('Choose CoG position','a = L/2-10cm','a = L/2','a = L/2+10cm','Drift: a=b; Ca=Ca_nom/100');       
+% caso = menu('Choose CoG position','a = L/2-10cm','a = L/2','a = L/2+10cm','Drift: a=b; Ca=Ca_nom/100');       
 set(0, 'DefaultUIControlFontSize', UIControl_FontSize_bak);
-if isempty(caso)
-    caso=1;
-end
+% if isempty(caso)
+%     caso=1;
+% end
+
+caso = 1;
+
 % 4 cases depending on COG position: 
 % (1) a = L/2-10cm 
 % (2) a = L/2
@@ -113,7 +116,7 @@ disp(['slip angle gradient: K_beta = ',num2str(K_beta_an),' rad/(m/s^2)'])
 disp(['tangent speed: V_beta = ',num2str(V_beta0),' km/h'])
 
 
-pause
+% pause
 
 %% SINGLE TRACK model analysis:
 % Poles, Damping Factors, Natural Frequencies versus velocity
@@ -265,7 +268,7 @@ ylabel('$\beta-\beta_0$ [deg]','interpreter','latex','Fontsize',18); xlim([0 5])
 K_us_num = (delta_meno_delta_0(end)- delta_meno_delta_0(1))/(ay_r(end)-ay_r(1))
 K_beta_num = (beta_meno_beta_0(end)- beta_meno_beta_0(1))/(ay_r(end)-ay_r(1))
 
-pause
+% pause
 
 %% BODE diagram
 % speed selection for Bode diagrams
@@ -325,7 +328,7 @@ h = bodeplot(sys);
 setoptions(h,'FreqUnits','Hz','PhaseVisible','on','Grid','On','Xlim',[0.1 10],'MagScale','linear','MagUnits','abs'); %,'PhaseWrapping','on'
 set(findall(gcf,'-property','FontSize'),'FontSize',13)
 
-pause
+% pause
 
 %% run Simulink model
 % default parameters
@@ -374,7 +377,8 @@ if isempty(delta_vol_max_ramp)==1
     delta_vol_max_ramp = 200; % max steering angle
 end
 %
-V = input(['choose speed for Simulink manoeuvre (default = ' num2str(Vd) ' km/h): ']);
+% V = input(['choose speed for Simulink manoeuvre (default = ' num2str(Vd) ' km/h): ']);
+V = 100;
 if isempty(V)
     V=Vd;       % km/h
 end
@@ -502,9 +506,10 @@ scatter(spost_x,spost_y,[],a_y(:,1))
 title('trajectory'),axis equal,xlabel('X [m]'),ylabel('Y[m]');colorbar
 text(49,12,['time[s]'])
 
-pause(3)
+pause
 
 %% Vehicle Trajectory and Animation
+close all
 F_Size=13;
 
 figure('Name','Vehicle CG location','NumberTitle','off','PaperType','A4');
