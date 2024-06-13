@@ -48,6 +48,8 @@ K_fb = K_feedback_LQR;
 K_ff = K_feedforward;
 K_i = K_integrative;
 x0 = 0;
+ff_delay = 0;
+trajectory_type = 1;
 return;
 
 %% ---------------- TEST 1 ----------------
