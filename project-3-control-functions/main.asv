@@ -136,8 +136,6 @@ end
 close all
 PLOT_U(t, u1v, u2v, N, plotlegend)
 PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend)
-K_fb = K_feedback_LQR;
-K_ff = FeedForward(K_fb);
 
 %% ---------------- TEST 1 ----------------
 disp('---- TEST 1 - FB OFF VS ON ----')
@@ -229,13 +227,12 @@ e1v=[];e2v=[];e3v=[];e4v=[];u1v=[];u2v=[];traj=[];N=0;
 V_prec=V;A_prec=A;B_prec=B;
 trajectory_type = 1;
 
-
 plotlegend = {};
-Vv = [80, 160, 220]/3.6;
+Vv = [80, 160, 220];
 L = length(Vv);
 for i = 1:L
     V = Vv(i);
-    plotlegend{i} = sprintf('V = %d', V*3.6);
+    plotlegend{i} = sprintf('V = %d', V);
     A = [ 0     1               0                   0;
       0 -(Cf+Cr)/(m*V)      (Cf+Cr)/m      (Cr*b-Cf*a)/(m*V);
       0     0               0                   1;
@@ -251,7 +248,7 @@ for i = 1:L
     sim(model_name)
     [e1v, e2v, e3v, e4v, u1v, u2v, traj, N] = take_res(e, u, Var_trajectory, e1v, e2v, e3v, e4v, u1v, u2v, traj, N);
     
-    fprintf('V = %3d, K_ff = %3.1f, K_fb = [ %3.2f, %3.2f, %3.2f, %3.2f ]\n', V*3.6,K_ff,K_fb(1),K_fb(2),K_fb(3),K_fb(4))
+    fprintf('V = %3d, K_ff = %3.1f, K_fb = [ %3.2f, %3.2f, %3.2f, %3.2f ]\n', V,K_ff,K_fb(1),K_fb(2),K_fb(3),K_fb(4))
 end
 
 close all
@@ -279,42 +276,7 @@ end
 
 %% ---------------- TEST 6 ----------------
 disp('---- TEST 6 - Cf and Cr vary ----')
-e1v=[];e2v=[];e3v=[];e4v=[];u1v=[];u2v=[];traj=[];N=0;
-A_prec=A;B_prec=B;Cf_prec=Cf;Cr_prec=Cr;
-trajectory_type = 1;
 
-K_fb = K_feedback_LQR;
-K_ff = FeedForward(K_fb);
-
-plotlegend = {};
-Vv = [80, 160, 220]/3.6;
-L = length(Vv);
-for i = 1:L
-    V = Vv(i);
-    plotlegend{i} = sprintf('V = %d', V*3.6);
-    A = [ 0     1               0                   0;
-      0 -(Cf+Cr)/(m*V)      (Cf+Cr)/m      (Cr*b-Cf*a)/(m*V);
-      0     0               0                   1;
-      0 (Cr*b-Cf*a)/(Jz*V) (Cf*a-Cr*b)/Jz -(Cr*b^2+Cf*a^2)/(Jz*V)
-    ];
-    B1 = [0;  Cf/m;                 0;  Cf*a/Jz];
-    B2 = [0; (Cr*b-Cf*a)/(m*V)-V;   0;  -(Cr*b^2+Cf*a^2)/(Jz*V)]; 
-    B = [B1, B2];
-    
-    K_fb = lqr(A, B1, Q, R);
-    K_ff = FeedForward(K_fb);
-
-    sim(model_name)
-    [e1v, e2v, e3v, e4v, u1v, u2v, traj, N] = take_res(e, u, Var_trajectory, e1v, e2v, e3v, e4v, u1v, u2v, traj, N);
-    
-    fprintf('V = %3d, K_ff = %3.1f, K_fb = [ %3.2f, %3.2f, %3.2f, %3.2f ]\n', V*3.6,K_ff,K_fb(1),K_fb(2),K_fb(3),K_fb(4))
-end
-
-close all
-PLOT_U(t, u1v, u2v, N, plotlegend)
-PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend)
-
-A = A_prec; B = B_prec;
 
 
 %% ---------------- TEST 7 ----------------
@@ -413,8 +375,6 @@ function PLOT_TRAJ(t, V, Kl, traj, N, plotlegend)
     y_max = max(max(abs(traj(:,:,2))));
     % xlim([min(min(traj(:,:,1))) - x_max*0.1, max(max(traj(:,:,1))) + x_max*0.1 ])
     % ylim([min(min(traj(:,:,2))) - y_max*0.1, max(max(traj(:,:,2))) + y_max*0.1 ])
-    xlabel('x [m]')
-    ylabel('y [m]')
     plot(0,0,'*r','Markersize', 15)
     plotlegend = {'Traj desired', plotlegend{1:N}};
     legend(plotlegend)
