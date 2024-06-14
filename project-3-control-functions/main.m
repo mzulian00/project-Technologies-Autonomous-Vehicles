@@ -8,7 +8,7 @@ model_name = 'path_tracking';
 
 m = 1575;       %[kg] mass
 a = 1.3;  
-b = 1.5 ;       %[m] rear wheelbase       
+b = 1.5;        %[m] rear wheelbase       
 L = a+b;        %[m] wheelbase
 Jz=2875;        %[kg m^2] mass moment of inertia 
 g = 9.81;       %[m/s^2]
@@ -120,9 +120,7 @@ Q = diag([0.1, 0.1, 1, 1]);
 R = 1;
 K_LQR(:,4) = lqr(A, B1, Q, R);
 
-
 K_LQR
-
 
 plotlegend = {};
 e1v=[];e2v=[];e3v=[];e4v=[];u1v=[];u2v=[];traj=[];N=0;
@@ -142,7 +140,6 @@ K_ff = FeedForward(K_fb);
 %% ---------------- TEST 1 ----------------
 disp('---- TEST 1 - FB OFF VS ON ----')
 e1v=[];e2v=[];e3v=[];e4v=[];u1v=[];u2v=[];traj=[];N=0;
-
 
 trajectory_type = 1;
 x0 = 0;
@@ -223,6 +220,7 @@ plotlegend = {'integ off','integ 1','integ 2','integ 3'};
 PLOT_U(t, u1v, u2v, N, plotlegend)
 PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend)
 PLOT_TRAJ(t, V, Kl, traj, N, plotlegend)
+
 %% ---------------- TEST 4 ----------------
 disp('---- TEST 4 - vary Vx ----')
 e1v=[];e2v=[];e3v=[];e4v=[];u1v=[];u2v=[];traj=[];N=0;
@@ -259,6 +257,7 @@ PLOT_U(t, u1v, u2v, N, plotlegend)
 PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend)
 
 V = V_prec; A = A_prec; B = B_prec;
+
 %% ---------------- TEST 5 ----------------
 disp('---- TEST 5 - Trajectories ----')
 

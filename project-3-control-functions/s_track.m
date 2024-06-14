@@ -11,7 +11,7 @@ set(0, 'DefaultUIControlFontSize', UIControl_FontSize_bak);
 %     caso=1;
 % end
 
-caso = 4;
+caso = 3;
 
 % 4 cases depending on COG position: 
 % (1) a = L/2-10cm 
@@ -114,7 +114,7 @@ disp(' ')
 % disp(['understeering gradient: K_US = ',num2str(K_us_an),' rad/(m/s^2)'])
 % disp(['slip angle gradient: K_beta = ',num2str(K_beta_an),' rad/(m/s^2)'])
 % disp(['tangent speed: V_beta = ',num2str(V_beta0),' km/h'])
-disp(['a = ', num2str(a), 'b = ', num2str(b)])
+disp(['a = ', num2str(a), ', b = ', num2str(b)])
 disp(['------------------------------------------------------------'])
 % pause
 
