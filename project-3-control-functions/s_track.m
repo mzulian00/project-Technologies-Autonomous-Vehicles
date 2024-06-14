@@ -41,8 +41,8 @@ disp(['static load distribution (%F - %R): ',num2str(round(Perc_F)),'-',num2str(
 %------ Cornering stiffness: no load transfer
 eval(['load Dati_txt' filesep 'CornStiff_Vs_Fz'])
 % interpolate wheel cornering stiffness versus vertical load
-% CF_w = interp1(Fz_vet,C_alpha_vet,FzF/2);
-% CR_w = interp1(Fz_vet,C_alpha_vet,FzR/2);
+CF_w = interp1(Fz_vet,C_alpha_vet,FzF/2);
+CR_w = interp1(Fz_vet,C_alpha_vet,FzR/2);
 DFz_tot = 0*4000;
 p_F = 0.2; 
 DFz_F = p_F*DFz_tot;
@@ -61,22 +61,22 @@ CR_wL = interp1(Fz_vet,C_alpha_vet,FzRL);
 CR_wR = interp1(Fz_vet,C_alpha_vet,FzRR);
 CR = CR_wL + CR_wR;
 
-% 
-% 
-% % axle stiffness
-% CF = 2*CF_w;    % front
+
+
+% axle stiffness
+CF = 2*CF_w;    % front
 if caso==4
-    CR_wL = CR_wL/100 % /100 for drift simulation
+    CR_wL = CR_wL/100; % /100 for drift simulation
     CR = 2*CR_wL;
     C_alpha_vet_drift = C_alpha_vet/100;
 else
     CR = 2*CR_wL;    % rear
 end
 
-% figure; hold on
-% plot(FzFL,CF_wL/1000,'rs','markersize',15,'linewidth',2,'DisplayName','$C_{FL}$'); 
-% plot(FzRL,CR_wL/1000,'ko','markersize',15,'linewidth',2,'DisplayName','$C_{RL}$'); 
-% plot(Fz_vet,C_alpha_vet/1000,'linewidth',2,'DisplayName','$C_{\alpha,FL}$')
+figure; hold on
+plot(FzFL,CF_wL/1000,'rs','markersize',15,'linewidth',2,'DisplayName','$C_{FL}$'); 
+plot(FzRL,CR_wL/1000,'ko','markersize',15,'linewidth',2,'DisplayName','$C_{RL}$'); 
+plot(Fz_vet,C_alpha_vet/1000,'linewidth',2,'DisplayName','$C_{\alpha,FL}$')
 
 if caso ==4
 plot(Fz_vet,C_alpha_vet_drift/1000,'linewidth',2,'DisplayName','$C_{\alpha,RL}$')

@@ -76,9 +76,9 @@ sim(model_name)
 
 close all
 plotlegend = {'x0 = 0','x0 = 10'};
-PLOT_TRAJ(t, V, Kl, traj, N, plotlegend)
-PLOT_U(t, u1v, u2v, N, plotlegend)
-PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend)
+PLOT_TRAJ(t, V, Kl, traj, N, plotlegend, 'TEST 0.1 TRAJ')
+PLOT_U(t, u1v, u2v, N, plotlegend, 'TEST 0.1 U')
+PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend, 'TEST 0.1 E')
 
 %%
 disp('---- TEST 0.2 - STEP RESPONSE ----')
@@ -94,8 +94,8 @@ sim(model_name)
 [e1v, e2v, e3v, e4v, u1v, u2v, traj, N] = take_res(e, u, Var_trajectory, e1v, e2v, e3v, e4v, u1v, u2v, traj, N);
 close all
 plotlegend = {};
-PLOT_U(t, u1v*pi/180, u2v, N, plotlegend)
-PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend)
+PLOT_U(t, u1v*pi/180, u2v, N, plotlegend, 'TEST 0.2 U')
+PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend, 'TEST 0.2 E')
 V = V_prec;
 max_delta = max_delta_prec;
 
@@ -132,8 +132,8 @@ for i = 1:4
     plotlegend{i} = sprintf('K%d', i);
 end
 close all
-PLOT_U(t, u1v, u2v, N, plotlegend)
-PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend)
+PLOT_U(t, u1v, u2v, N, plotlegend, 'TEST 0.3 U')
+PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend, 'TEST 0.3 E')
 K_fb = K_feedback_LQR;
 K_ff = FeedForward(K_fb);
 
@@ -171,9 +171,9 @@ sim(model_name)
 
 close all
 plotlegend = {'fb OFF','fb LQR', 'fb POLE 1', 'fb POLE 10'};
-PLOT_TRAJ(t, V, Kl, traj, N, plotlegend)
-PLOT_U(t, u1v, u2v, N, plotlegend)
-PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend)
+PLOT_TRAJ(t, V, Kl, traj, N, plotlegend, 'TEST 1 TRAJ')
+PLOT_U(t, u1v, u2v, N, plotlegend, 'TEST 1 U')
+PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend, 'TEST 1 E')
 
 
 %% ---------------- TEST 2 ----------------
@@ -189,6 +189,7 @@ sim(model_name)
 close all
 plotlegend = {'delta', 'FF','FB'};                           
 PLOT(t, [u(:,1), FF, FB], 3, plotlegend, '', 'FF and FB')
+saveas(gcf, strcat('imgs\', 'TEST 2 FF-FB', '.png'));  % Save as PNG file
 
 %% ---------------- TEST 3 ----------------
 disp('---- TEST 3 - Integrative term ----')
@@ -217,9 +218,11 @@ sim(model_name)
 
 close all
 plotlegend = {'integ off','integ 1','integ 2','integ 3'};
-PLOT_U(t, u1v, u2v, N, plotlegend)
-PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend)
-PLOT_TRAJ(t, V, Kl, traj, N, plotlegend)
+PLOT_U(t, u1v, u2v, N, plotlegend, 'TEST 3 U')
+PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend, 'TEST 3 E')
+PLOT_TRAJ(t, V, Kl, traj, N, plotlegend, 'TEST 3 TRAJ')
+
+
 
 %% ---------------- TEST 4 ----------------
 disp('---- TEST 4 - vary Vx ----')
@@ -253,8 +256,8 @@ for i = 1:L
 end
 
 close all
-PLOT_U(t, u1v, u2v, N, plotlegend)
-PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend)
+PLOT_U(t, u1v, u2v, N, plotlegend, 'TEST 4 U')
+PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend, 'TEST 4 E')
 
 V = V_prec; A = A_prec; B = B_prec;
 
@@ -272,25 +275,28 @@ for i = 1:4
     sim(model_name)
     [e1v, e2v, e3v, e4v, u1v, u2v, traj, N] = take_res(e, u, Var_trajectory, e1v, e2v, e3v, e4v, u1v, u2v, traj, N);
 
-    PLOT_TRAJ(t, V, Kl, traj, 1, {plotlegend{i}})
+    PLOT_TRAJ(t, V, Kl, traj, 1, {plotlegend{i}}, sprintf('TEST 5.%d TRAJ', i))
 
 end
 
 %% ---------------- TEST 6 ----------------
 disp('---- TEST 6 - Cf and Cr vary ----')
 e1v=[];e2v=[];e3v=[];e4v=[];u1v=[];u2v=[];traj=[];N=0;
-A_prec=A;B_prec=B;Cf_prec=Cf;Cr_prec=Cr;
+A_prec=A;B_prec=B;Cf_prec=Cf;Cr_prec=Cr;a_prec=a;b_prec=b;
 trajectory_type = 1;
 
-K_fb = K_feedback_LQR;
-K_ff = FeedForward(K_fb);
-
 plotlegend = {};
-Vv = [80, 160, 220]/3.6;
-L = length(Vv);
+Cf_v = [Cf_prec, Cr_prec, (Cf_prec+Cr_prec)/2];
+Cr_v = [Cr_prec, Cf_prec, (Cf_prec+Cr_prec)/2];
+a_v = [a_prec, b_prec, (a_prec+b_prec)/2];
+b_v = [b_prec, a_prec, (a_prec+b_prec)/2];
+L = length(Cf_v);
 for i = 1:L
-    V = Vv(i);
-    plotlegend{i} = sprintf('V = %d', V*3.6);
+    Cf = Cf_v(i);
+    Cr = Cr_v(i);
+    a = a_v(i);
+    b = b_v(i);
+    
     A = [ 0     1               0                   0;
       0 -(Cf+Cr)/(m*V)      (Cf+Cr)/m      (Cr*b-Cf*a)/(m*V);
       0     0               0                   1;
@@ -305,26 +311,53 @@ for i = 1:L
 
     sim(model_name)
     [e1v, e2v, e3v, e4v, u1v, u2v, traj, N] = take_res(e, u, Var_trajectory, e1v, e2v, e3v, e4v, u1v, u2v, traj, N);
-    
-    fprintf('V = %3d, K_ff = %3.1f, K_fb = [ %3.2f, %3.2f, %3.2f, %3.2f ]\n', V*3.6,K_ff,K_fb(1),K_fb(2),K_fb(3),K_fb(4))
+    if Cr*b-Cf*a>0
+        disp('============ understeering ============')
+        plotlegend{i} = 'understeering';
+    elseif Cf*a-Cr*b==0
+        disp('============ neutral vehicle ============')
+        plotlegend{i} = 'neutral';
+    else
+        disp('============ oversteering ============')
+        plotlegend{i} = 'oversteering';
+    end
+    fprintf('Cf = %d, Cr = %d, a = %.1f, b = %.1f\n', Cf, Cr, a, b)
+    % fprintf('K_ff = %3.1f, K_fb = [ %3.2f, %3.2f, %3.2f, %3.2f ]\n',K_ff,K_fb(1),K_fb(2),K_fb(3),K_fb(4))
 end
 
 close all
-PLOT_U(t, u1v, u2v, N, plotlegend)
-PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend)
+PLOT_U(t, u1v, u2v, N, plotlegend, 'TEST 6 U')
+PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend, 'TEST 6 E')
 
 A = A_prec; B = B_prec;
-
+Cf = Cf_prec; Cr = Cr_prec;
+a = a_prec; b = b_prec;
 
 %% ---------------- TEST 7 ----------------
 disp('---- TEST 7 - FF delay ----')
+e1v=[];e2v=[];e3v=[];e4v=[];u1v=[];u2v=[];traj=[];N=0;
 
+K_fb = K_feedback_LQR;
+K_ff = FeedForward(K_fb);
 
+ff_delay = 0;
+sim(model_name)
+[e1v, e2v, e3v, e4v, u1v, u2v, traj, N] = take_res(e, u, Var_trajectory, e1v, e2v, e3v, e4v, u1v, u2v, traj, N);
 
+ff_delay = 0.01;
+sim(model_name)
+[e1v, e2v, e3v, e4v, u1v, u2v, traj, N] = take_res(e, u, Var_trajectory, e1v, e2v, e3v, e4v, u1v, u2v, traj, N);
 
+close all
+plotlegend = {'FF delay OFF', 'FF delay ON'};
+PLOT_U(t, u1v, u2v, N, plotlegend, 'TEST 7 U')
+PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend, 'TEST 7 E')
+% PLOT_TRAJ(t, V, Kl, traj, N, plotlegend, 'TEST 7 TRAJ')
+
+ff_delay = 0; 
 %% prova PLOT
 close all
-PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend)
+PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend, 'prova')
 
 %% ---------------------------- FUNCTIONS ---------------------------------
 function [e1v, e2v, e3v, e4v, u1v, u2v, traj, N] = take_res(e, u, Var_trajectory, e1v, e2v, e3v, e4v, u1v, u2v, traj, N)
@@ -358,32 +391,35 @@ function PLOT(t, x, L, plotlegend, yaxis, nome_fig)
     if isempty(plotlegend) == 0
         legend(plotlegend{1:L})
     end
-    % saveas(gcf, strcat('imgs\', nome_fig, '.png'));  % Save as PNG file
-end
+    end
 
-function PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend)
+function PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend, nome_fig )
     figure('Name','State space','NumberTitle','off','PaperType','A4')
     set(gcf, 'Units', 'normalized', 'OuterPosition', [0 0 1 1]);
     subplot(2,2,1)
-    PLOT(t, e1v, N, plotlegend,'','$\textbf{e1 = y - $y_{ref}$}$')
+    PLOT(t, e1v, N, plotlegend,'[m]','$\textbf{e1 = y - $y_{ref}$}$')
     subplot(2,2,2)
-    PLOT(t, e2v, N, plotlegend,'','$\textbf{e2 = $\dot{e1}$}$')
+    PLOT(t, e2v, N, plotlegend,'[m/s]','$\textbf{e2 = $\dot{e1}$}$')
     subplot(2,2,3)
-    PLOT(t, e3v, N, plotlegend,'','$\textbf{e3 = $\psi$ - $\psi_{des}$}$')
+    PLOT(t, e3v, N, plotlegend,'[rad]','$\textbf{e3 = $\psi$ - $\psi_{des}$}$')
     subplot(2,2,4)
-    PLOT(t, e4v, N, plotlegend,'','$\textbf{e4 = $\dot{e3}$}$')
+    PLOT(t, e4v, N, plotlegend,'[rad/s]','$\textbf{e4 = $\dot{e3}$}$')
+    saveas(gcf, strcat('imgs\', nome_fig, '.png'));  % Save as PNG file
+
 end
 
-function PLOT_U(t, u1v, u2v, N, plotlegend)
+function PLOT_U(t, u1v, u2v, N, plotlegend, nome_fig)
     figure('Name','Input delta','NumberTitle','off','PaperType','A4')
     subplot(2,1,1)
     PLOT(t, u1v*360/2/pi, N, plotlegend,'[deg]','$\textbf{u1 $\delta$}$')
     subplot(2,1,2)
     % figure('Name','Input psi','NumberTitle','off','PaperType','A4')
-    PLOT(t, u2v, N, plotlegend,'','$\textbf{u2 $\psi$}$')
+    PLOT(t, u2v, N, plotlegend,'[rad/s]','$\textbf{u2 $\psi$}$')
+    saveas(gcf, strcat('imgs\', nome_fig, '.png'));  % Save as PNG file
+
 end
 
-function PLOT_TRAJ(t, V, Kl, traj, N, plotlegend)
+function PLOT_TRAJ(t, V, Kl, traj, N, plotlegend, nome_fig)
     linewidth = 1.4;
     plotcol = {'b','r','g','m','k'};
     dt_sim = 1e-3;
@@ -397,8 +433,11 @@ function PLOT_TRAJ(t, V, Kl, traj, N, plotlegend)
     
     figure('Name','Curvature','NumberTitle','off','PaperType','A4')
     plot(t, Kl, 'b', LineWidth=linewidth)
+    ylabel('[1/m]')
+    xlabel('time [s]')
     xlim([t(1), t(end)])
-
+    title('Curvature Kl');
+    saveas(gcf, strcat('imgs\', nome_fig, ' Kl.png'));  % Save as PNG file
     
     figure('Name','Trajectory','NumberTitle','off','PaperType','A4')
     ppp = plot(cum_x, cum_y, '--k', LineWidth=2.5);
@@ -417,5 +456,7 @@ function PLOT_TRAJ(t, V, Kl, traj, N, plotlegend)
     plot(0,0,'*r','Markersize', 15)
     plotlegend = {'Traj desired', plotlegend{1:N}};
     legend(plotlegend)
+    title('Trajectories');
+    saveas(gcf, strcat('imgs\', nome_fig, '.png'));  % Save as PNG file
 
 end
