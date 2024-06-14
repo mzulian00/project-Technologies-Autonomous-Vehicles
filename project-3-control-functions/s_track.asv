@@ -11,7 +11,7 @@ set(0, 'DefaultUIControlFontSize', UIControl_FontSize_bak);
 %     caso=1;
 % end
 
-caso = 4;
+caso = 1;
 
 % 4 cases depending on COG position: 
 % (1) a = L/2-10cm 
@@ -73,10 +73,10 @@ else
     CR = 2*CR_wL;    % rear
 end
 
-% figure; hold on
-% plot(FzFL,CF_wL/1000,'rs','markersize',15,'linewidth',2,'DisplayName','$C_{FL}$'); 
-% plot(FzRL,CR_wL/1000,'ko','markersize',15,'linewidth',2,'DisplayName','$C_{RL}$'); 
-% plot(Fz_vet,C_alpha_vet/1000,'linewidth',2,'DisplayName','$C_{\alpha,FL}$')
+figure; hold on
+plot(FzFL,CF_wL/1000,'rs','markersize',15,'linewidth',2,'DisplayName','$C_{FL}$'); 
+plot(FzRL,CR_wL/1000,'ko','markersize',15,'linewidth',2,'DisplayName','$C_{RL}$'); 
+plot(Fz_vet,C_alpha_vet/1000,'linewidth',2,'DisplayName','$C_{\alpha,FL}$')
 
 if caso ==4
 plot(Fz_vet,C_alpha_vet_drift/1000,'linewidth',2,'DisplayName','$C_{\alpha,RL}$')
@@ -114,8 +114,8 @@ disp(' ')
 % disp(['understeering gradient: K_US = ',num2str(K_us_an),' rad/(m/s^2)'])
 % disp(['slip angle gradient: K_beta = ',num2str(K_beta_an),' rad/(m/s^2)'])
 % disp(['tangent speed: V_beta = ',num2str(V_beta0),' km/h'])
-disp(['a = ', num2str(a), 'b = ', num2str(b)])
-disp(['------------------------------------------------------------'])
+
+
 % pause
 
 %% SINGLE TRACK model analysis:
