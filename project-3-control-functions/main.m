@@ -495,15 +495,15 @@ PLOT(t, beta, 1, '', '[rad]', '$\beta$')
 saveas(gcf, strcat('imgs\', 'TEST 8 beta' ,'.png'));  % Save as PNG file
 
 figure('Name','psi','NumberTitle','off','PaperType','A4')
-PLOT(t, psi, 1, '', '[rad/s]', '$\psi$')
+PLOT(t, psi, 1, '', '[rad]', '$\psi$')
 saveas(gcf, strcat('imgs\', 'TEST 8 psi' ,'.png'));  % Save as PNG file
 
 figure('Name','rho','NumberTitle','off','PaperType','A4')
-PLOT(t, rho, 1, '', '[rad/s]', '$\rho$')
+PLOT(t, rho, 1, '', '[m]', '$\rho$')
 saveas(gcf, strcat('imgs\', 'TEST 8 rho' ,'.png'));  % Save as PNG file
 
 figure('Name','alphaF','NumberTitle','off','PaperType','A4')
-PLOT(t, alphaF, 1, '', '[rad/s]', '$\alpha_F$')
+PLOT(t, alphaF, 1, '', '[rad]', '$\alpha_F$')
 saveas(gcf, strcat('imgs\', 'TEST 8 alphaF' ,'.png'));  % Save as PNG file
 
 figure('Name','acc y','NumberTitle','off','PaperType','A4')
