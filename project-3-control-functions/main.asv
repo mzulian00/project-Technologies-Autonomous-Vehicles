@@ -65,7 +65,7 @@ G = [   (-Cr-Cf)/(m*V^2),   (-Cf*a+Cr*b)/(m*V^3)    % rho
             -1,             -a/V                    % alpha F
         (-Cr-Cf)/(m),       (-Cf*a+Cr*b)/(m*V)];    % ay
 H = [Cf/(m*V^2);    1;     Cf/m];
-% return;
+return;
 
 %% ---------------- TEST 0 ----------------
 disp('---- TEST 0.1 - SYSTEM BEHAVIOUR ----')
@@ -86,7 +86,7 @@ sim(model_name)
 
 close all
 plotlegend = {'x0 = 0','x0 = 10'};
-PLOT_TRAJ(t, V, Kl, traj, N, plotlegend, 'TEST 0.1 TRAJ')
+% PLOT_TRAJ(t, V, Kl, traj, N, plotlegend, 'TEST 0.1 TRAJ')
 PLOT_E(t, e1v, e2v, e3v, e4v, N, plotlegend, 'TEST 0.1 E')
 
 e1v=[];e2v=[];e3v=[];e4v=[];u1v=[];u2v=[];traj=[];N=0;
@@ -480,7 +480,7 @@ ff_delay = 0;
 disp('---- TEST 8 - Other state variables ----')
 e1v=[];e2v=[];e3v=[];e4v=[];u1v=[];u2v=[];traj=[];N=0;
 
-trajectory_type = 1;
+trajectory_type = 3;
 K_fb = K_feedback_LQR;
 K_ff = FeedForward(K_fb);
 K_i = 0;
