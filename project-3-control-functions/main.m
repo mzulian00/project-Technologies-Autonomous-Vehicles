@@ -65,7 +65,7 @@ G = [   (-Cr-Cf)/(m*V^2),   (-Cf*a+Cr*b)/(m*V^3)    % rho
             -1,             -a/V                    % alpha F
         (-Cr-Cf)/(m),       (-Cf*a+Cr*b)/(m*V)];    % ay
 H = [Cf/(m*V^2);    1;     Cf/m];
-% return;
+return;
 
 %% ---------------- TEST 0 ----------------
 disp('---- TEST 0.1 - SYSTEM BEHAVIOUR ----')
